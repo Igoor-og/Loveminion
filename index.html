@@ -1,0 +1,1279 @@
+<!doctype html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Love Minion | Eternize Momentos</title>
+
+        <link
+            href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+            rel="stylesheet"
+        />
+
+        <script
+            src="https://kit.fontawesome.com/c4059a4c09.js"
+            crossorigin="anonymous"
+        ></script>
+
+        <style>
+            /* ================================================= */
+            /* VARIÁVEIS DE COR (Dark Mode Elegante: Dourado e Cinza) */
+            /* ================================================= */
+            :root {
+                --color-primary: #ffc300; /* Dourado/Amarelo Mais Suave */
+                --color-primary-hover: #e8b400; /* Dourado/Amarelo Escuro para Hover */
+                --color-background-dark: #0a0a0a; /* Fundo Ultra Escuro */
+                --color-background-light: #1a1a1a; /* Blocos Secundários (Acentos) */
+                --color-text-light: #fafafa; /* Texto Principal Branco Suave */
+                --color-text-muted: #a0a0a0; /* Texto Secundário Cinza Médio */
+                --color-shadow: rgba(
+                    0,
+                    0,
+                    0,
+                    0.4
+                ); /* Sombra mais escura para contraste */
+                --color-success: #00a36c; /* NOVO: Verde Esmeralda Escuro para Sucesso/Positivo */
+                --color-border-dark: #303030; /* Borda/Separador mais suave */
+            }
+
+            /* ================================================= */
+            /* BASE E ESTILOS GLOBAIS (NENHUMA ALTERAÇÃO NECESSÁRIA AQUI) */
+            /* ================================================= */
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                font-family: "Poppins", sans-serif;
+                color: var(--color-text-light);
+                line-height: 1.6;
+                background-color: var(--color-background-dark);
+                scroll-behavior: smooth;
+            }
+
+            a {
+                text-decoration: none;
+                color: var(--color-primary);
+                transition: color 0.3s;
+            }
+
+            h1,
+            h2,
+            h3 {
+                color: var(--color-text-light);
+                font-weight: 600;
+            }
+
+            h2 {
+                font-size: 1.8rem;
+                margin-bottom: 0.5rem;
+                font-weight: 700;
+            }
+            /* --- Seção de Passos (Como Funciona) --- */
+
+            /* Estilo para os ícones de imagem nos passos (Substitui .step-icon) */
+            .step-img-icon {
+                width: 30px;
+                height: 30px;
+                margin-bottom: 10px;
+                /* ADICIONAR ESTA LINHA: */
+                background-color: transparent;
+                /* Manter o filtro de cor, se necessário */
+                filter: invert(45%) sepia(80%) saturate(600%) hue-rotate(330deg)
+                    brightness(100%) contrast(90%);
+            }
+
+            /* --- Seção de Recursos (Features) --- */
+
+            /* Estilo para ícones de Font Awesome (Manter, mas o HTML usa agora a classe abaixo) */
+            .feature-icon {
+                font-size: 2.5rem;
+                color: var(--color-primary);
+                margin-bottom: 15px;
+            }
+
+            /* Estilo para ícones de imagem (assets) (Novo estilo para o <img>) */
+            .feature-img-icon {
+                width: 40px;
+                height: 40px;
+                margin-bottom: 15px;
+                /* ADICIONAR ESTA LINHA: */
+                background-color: transparent;
+                /* Manter o filtro de cor, se necessário */
+                filter: invert(45%) sepia(80%) saturate(600%) hue-rotate(330deg)
+                    brightness(100%) contrast(90%);
+            }
+            .container {
+                width: 100%;
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 0 1.5rem;
+            }
+
+            /* Global CTA Button Style */
+            .cta-button {
+                display: inline-block;
+                background-color: var(--color-primary);
+                color: var(--color-background-dark); /* Texto do botão escuro */
+                padding: 1rem 2rem;
+                border-radius: 8px;
+                font-weight: 700; /* Deixei mais bold */
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                /* Sombra dourada mais elegante */
+                box-shadow: 0 6px 20px rgba(255, 195, 0, 0.35);
+                transition:
+                    background-color 0.3s,
+                    transform 0.2s,
+                    box-shadow 0.3s;
+                border: none;
+                cursor: pointer;
+            }
+
+            .cta-button:hover {
+                background-color: var(--color-primary-hover);
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(255, 195, 0, 0.5); /* Sombra aumenta no hover */
+            }
+
+            /* --- 1. HEADER (Sticky) --- */
+            .header {
+                position: sticky;
+                top: 0;
+                left: 0;
+                width: 100%;
+                /* Deixei o header um pouco mais claro para destacar do body */
+                background-color: var(--color-background-dark);
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6); /* Sombra mais visível */
+                z-index: 1000;
+                padding: 1rem 1.5rem;
+            }
+
+            .nav-container {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .logo {
+                font-size: 1.6rem;
+                font-weight: 700;
+                color: var(--color-primary);
+            }
+
+            /* Menu Hambúrguer (Mobile Only) */
+            .menu-toggle {
+                display: block;
+                font-size: 1.5rem;
+                cursor: pointer;
+                color: var(--color-text-light);
+            }
+
+            .nav-menu {
+                display: none;
+                flex-direction: column;
+                width: 100%;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                background-color: var(--color-background-dark);
+                border-top: 1px solid var(--color-border-dark);
+            }
+
+            .nav-menu.active {
+                display: flex;
+            }
+
+            .nav-menu a {
+                padding: 0.8rem 1.5rem;
+                border-bottom: 1px solid var(--color-border-dark);
+                text-align: center;
+                color: var(--color-text-light);
+                font-weight: 500;
+            }
+
+            /* --- 2. HERO SECTION --- */
+            .hero-section {
+                background-color: var(--color-background-light);
+                padding: 3rem 0 0;
+                text-align: center;
+                /* Borda sutil para separar do header */
+                border-bottom: 1px solid var(--color-border-dark);
+            }
+
+            .hero-content {
+                padding: 2rem 0;
+            }
+
+            .hero-title {
+                font-size: 2.2rem;
+                line-height: 1.2;
+                margin-bottom: 1rem;
+            }
+
+            .hero-title span {
+                color: var(--color-primary);
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+                color: var(--color-text-muted);
+                max-width: 600px;
+                margin: 0 auto 2rem;
+            }
+
+            .satisfied-users {
+                margin-top: 1rem;
+                font-weight: 600;
+                color: var(--color-success); /* Usando o Azul Profundo */
+            }
+
+            .mockup-placeholder {
+                width: 100%;
+                height: 300px;
+                background: url("https://source.unsplash.com/random/800x600/?couple,website,screen,dark")
+                    no-repeat center center/cover;
+                border-top-left-radius: 12px;
+                border-top-right-radius: 12px;
+                box-shadow: 0 -5px 20px var(--color-shadow);
+                margin-top: 2rem;
+                opacity: 0.9; /* Um pouco mais de opacidade */
+                border-top: 1px solid var(--color-border-dark); /* Borda superior sutil */
+            }
+
+            /* --- 3. COMO FUNCIONA (4 Passos) --- */
+            .steps-section {
+                padding: 4rem 0;
+                text-align: center;
+            }
+
+            .steps-section h2 {
+                margin-bottom: 2.5rem;
+            }
+
+            .steps-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 2rem;
+            }
+
+            .step-card {
+                display: flex;
+                align-items: center;
+                gap: 1.5rem;
+                text-align: left;
+                padding: 1rem;
+                /* Adicionando um fundo sutil para cada passo */
+                background-color: var(--color-background-light);
+                border-radius: 8px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            }
+
+            .step-number {
+                font-size: 2.5rem;
+                font-weight: 700;
+                color: var(--color-primary);
+                flex-shrink: 0;
+            }
+
+            .step-content h3 {
+                font-size: 1.3rem;
+                margin-bottom: 0.2rem;
+            }
+
+            .step-content p {
+                color: var(--color-text-muted);
+            }
+
+            /* --- 4. RECURSOS EXCLUSIVOS --- */
+            .features-section {
+                background-color: var(--color-background-light);
+                padding: 4rem 0;
+                text-align: center;
+            }
+
+            .features-grid {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                margin-top: 2.5rem;
+            }
+
+            .feature-card {
+                background-color: var(--color-background-dark);
+                padding: 1.5rem;
+                border-radius: 8px;
+                box-shadow: 0 2px 10px var(--color-shadow);
+                text-align: left;
+                border: 1px solid var(--color-border-dark);
+            }
+
+            .feature-icon {
+                font-size: 1.8rem;
+                color: var(--color-primary);
+                margin-bottom: 0.5rem;
+            }
+
+            .feature-card h3 {
+                font-size: 1.2rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .feature-card p {
+                font-size: 0.9rem;
+                color: var(--color-text-muted);
+            }
+
+            /* --- 5. PLANOS (Pricing) --- */
+            .plans-section {
+                padding: 4rem 0;
+                text-align: center;
+            }
+
+            .plans-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 2rem;
+                margin-top: 2.5rem;
+                align-items: center;
+            }
+
+            .plan-card {
+                background-color: var(--color-background-light);
+                padding: 2rem;
+                border-radius: 12px;
+                box-shadow: 0 4px 20px var(--color-shadow);
+                width: 100%;
+                max-width: 350px;
+                text-align: left;
+                border: 1px solid var(--color-border-dark);
+                transition:
+                    transform 0.3s,
+                    box-shadow 0.3s;
+            }
+
+            .plan-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+            }
+
+            .plan-card.recommended {
+                background-color: var(--color-primary);
+                color: var(--color-background-dark);
+                border-color: var(--color-primary);
+                transform: scale(1.05);
+                /* Adicionando um brilho sutil para o recomendado */
+                box-shadow:
+                    0 0 0 3px var(--color-primary),
+                    0 8px 30px rgba(0, 0, 0, 0.6);
+            }
+
+            .plan-card.recommended h3,
+            .plan-card.recommended .plan-price {
+                color: var(--color-background-dark);
+            }
+
+            .plan-card.recommended .feature-list li {
+                color: var(--color-background-dark);
+            }
+
+            .plan-card.recommended .feature-list i {
+                color: var(--color-background-dark);
+            }
+
+            .plan-card h3 {
+                font-size: 1.8rem;
+                margin-bottom: 0.2rem;
+            }
+
+            .plan-price {
+                font-size: 2.5rem;
+                font-weight: 700;
+                color: var(--color-primary);
+                margin-bottom: 0.5rem;
+            }
+
+            /* Botão do plano RECOMENDADO */
+            .plan-card.recommended .cta-button {
+                background-color: var(--color-background-dark);
+                color: var(--color-primary);
+                box-shadow: none;
+            }
+
+            .plan-card.recommended .cta-button:hover {
+                background-color: #303030; /* Um tom de cinza mais escuro no hover */
+                color: var(--color-primary-hover);
+            }
+
+            .feature-list {
+                list-style: none;
+                padding: 1rem 0 2rem;
+                border-top: 1px solid var(--color-border-dark);
+                margin-top: 1rem;
+            }
+
+            .feature-list li {
+                padding: 0.5rem 0;
+                display: flex;
+                align-items: center;
+                color: var(--color-text-muted);
+            }
+
+            .feature-list i {
+                margin-right: 10px;
+                color: var(--color-primary);
+            }
+
+            .plan-card.recommended .feature-list li i {
+                color: var(--color-background-dark);
+            }
+
+            /* --- 6. AVALIAÇÕES (Testimonials) --- */
+            .testimonials-section {
+                background-color: var(--color-background-light);
+                padding: 4rem 0;
+            }
+
+            .testimonial-grid {
+                display: flex;
+                overflow-x: scroll;
+                gap: 1.5rem;
+                padding: 1rem 0;
+                -webkit-overflow-scrolling: touch;
+                scroll-snap-type: x mandatory;
+                margin-top: 2.5rem;
+            }
+
+            .testimonial-grid::-webkit-scrollbar {
+                display: none;
+            }
+            .testimonial-grid {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+
+            .testimonial-card {
+                flex: 0 0 85%;
+                max-width: 400px;
+                background-color: var(--color-background-dark);
+                padding: 1.5rem;
+                border-radius: 8px;
+                box-shadow: 0 2px 10px var(--color-shadow);
+                scroll-snap-align: start;
+                border-left: 3px solid var(--color-primary); /* Destaque lateral */
+            }
+
+            .client-info {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                margin-bottom: 0.75rem;
+            }
+
+            .client-photo {
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 2px solid var(--color-primary); /* Destaque no Amarelo */
+            }
+
+            .testimonial-text {
+                font-style: italic;
+                color: var(--color-text-muted);
+                font-size: 0.95rem;
+            }
+
+            /* --- 7. F.A.Q. (Perguntas Frequentes) --- */
+            .faq-section {
+                padding: 4rem 0;
+                background-color: var(
+                    --color-background-dark
+                ); /* Garante fundo base */
+            }
+
+            .faq-list {
+                margin-top: 2.5rem;
+                display: flex;
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+
+            .faq-item {
+                border-bottom: 1px solid var(--color-border-dark);
+                padding-bottom: 1.5rem;
+            }
+
+            .faq-question {
+                font-weight: 600;
+                font-size: 1.1rem;
+                color: var(--color-text-light);
+                cursor: pointer;
+                padding-right: 2rem;
+                position: relative;
+                transition: color 0.3s;
+            }
+
+            .faq-question:hover {
+                color: var(--color-primary);
+            }
+
+            .faq-question::after {
+                content: "+";
+                position: absolute;
+                right: 0;
+                color: var(--color-primary);
+            }
+
+            .faq-answer {
+                padding-top: 0.5rem;
+                color: var(--color-text-muted);
+                font-size: 0.95rem;
+                display: none;
+            }
+
+            /* --- 8. FINAL CTA BLOCK --- */
+            .final-cta-section {
+                background-color: var(--color-primary);
+                padding: 3rem 0;
+                text-align: center;
+                color: var(--color-background-dark);
+                box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); /* Sombra para destacar */
+            }
+
+            .final-cta-section h2 {
+                color: var(--color-background-dark);
+                font-size: 2rem;
+                margin-bottom: 1rem;
+            }
+
+            .final-cta-section .cta-button {
+                background-color: var(--color-background-dark);
+                color: var(--color-primary);
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+            }
+
+            .final-cta-section .cta-button:hover {
+                background-color: #303030;
+                color: var(--color-primary-hover);
+            }
+
+            /* --- 9. FOOTER --- */
+            .footer {
+                background-color: var(--color-background-dark);
+                color: var(--color-text-muted);
+                padding: 3rem 0;
+                font-size: 0.9rem;
+                text-align: center;
+                border-top: 1px solid var(--color-border-dark);
+            }
+
+            .footer-content {
+                display: flex;
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+
+            .footer-links a {
+                color: var(--color-text-muted);
+                margin: 0 0.5rem;
+            }
+
+            .footer-links a:hover {
+                color: var(--color-primary);
+            }
+
+            .social-media a {
+                font-size: 1.3rem;
+                margin: 0 0.5rem;
+                color: var(--color-text-muted);
+                transition: color 0.3s;
+            }
+
+            .social-media a:hover {
+                color: var(--color-primary);
+            }
+
+            /* --- Media Queries (Desktop) --- */
+            @media (min-width: 768px) {
+                h2 {
+                    font-size: 2.5rem;
+                }
+
+                /* Header Desktop */
+                .menu-toggle {
+                    display: none;
+                }
+                .nav-menu {
+                    display: flex;
+                    flex-direction: row;
+                    position: static;
+                    width: auto;
+                    gap: 1.5rem;
+                    border-top: none;
+                }
+                .nav-menu a {
+                    border-bottom: none;
+                    padding: 0.5rem 0;
+                }
+
+                /* Hero Desktop */
+                .hero-section {
+                    padding-top: 7rem;
+                }
+                .hero-title {
+                    font-size: 3.5rem;
+                }
+                .mockup-placeholder {
+                    height: 500px;
+                }
+
+                /* Steps Desktop */
+                .steps-grid {
+                    flex-direction: row;
+                    justify-content: space-between;
+                }
+                .step-card {
+                    flex-direction: column;
+                    text-align: center;
+                    max-width: 25%;
+                }
+                .step-number {
+                    font-size: 3rem;
+                    margin-bottom: 0.5rem;
+                }
+                .step-content {
+                    text-align: center;
+                }
+
+                /* Features Desktop */
+                .features-grid {
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 2rem;
+                }
+
+                /* Plans Desktop */
+                .plans-grid {
+                    flex-direction: row;
+                    justify-content: center;
+                }
+                .plan-card.recommended {
+                    margin-top: -20px;
+                }
+
+                /* Testimonials Desktop */
+                .testimonial-grid {
+                    overflow-x: hidden;
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 2rem;
+                    padding: 1rem 0;
+                }
+                .testimonial-card {
+                    flex: none;
+                    max-width: none;
+                }
+
+                /* Footer Desktop */
+                .footer-content {
+                    flex-direction: row;
+                    justify-content: space-between;
+                    text-align: left;
+                }
+                .footer-info-section {
+                    text-align: left;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <header class="header">
+            <div class="nav-container container">
+                <a href="#" class="logo">Love Minions</a>
+
+                <nav class="nav-menu" id="navMenu">
+                    <a href="#hero">Início</a>
+                    <a href="#how-it-works">Como funciona?</a>
+                    <a href="#plans">Planos</a>
+                    <a href="#faq">F.A.Q</a>
+                </nav>
+
+                <button
+                    class="menu-toggle"
+                    id="menuToggle"
+                    aria-label="Toggle navigation"
+                >
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </header>
+
+        <main>
+            <section class="hero-section" id="hero">
+                <div class="container hero-content">
+                    <h1 class="hero-title">
+                        Vamos começar? Declare seu amor para alguém e
+                        <span>surpreenda!</span>
+                    </h1>
+                    <p class="hero-subtitle">
+                        Crie uma página personalizada para quem você ama e
+                        surpreenda a pessoa com uma declaração especial que
+                        ficará para sempre.
+                    </p>
+                    <a href="#plans" class="cta-button">Criar minha página</a>
+                    <p class="satisfied-users">
+                        Mais de 4 usuários satisfeitos
+                    </p>
+                </div>
+                <div class="mockup-placeholder">
+                    <video controls autoplay muted loop
+                        alt="Mockup do site de contagem regressiva"
+                        style="
+                            object-fit: cover;
+                            border-radius: 12px 12px 0 0;
+                        "
+                            <source src ="assets/mockup.mp4" type="video/mp4" />
+                    </video>
+                </div>
+            </section>
+
+            <section class="steps-section" id="how-it-works">
+                <div class="container">
+                    <h2 style="font-size: 2rem">
+                        Crie sua página em poucos passos
+                    </h2>
+                    <div class="steps-grid">
+                        <div class="step-card">
+                            <span class="step-number">1</span>
+                            <div class="step-content">
+                                <img
+                                    src="assets/lista_icon.png"
+                                    alt="Ícone de Lista"
+                                    class="step-img-icon"
+                                />
+                                <h3>Personalize</h3>
+                                <p>
+                                    Personalize sua página com fotos, mensagens,
+                                    efeitos especiais e muito mais.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="step-card">
+                            <span class="step-number">2</span>
+                            <div class="step-content">
+                                <img
+                                    src="assets/money_icon.png"
+                                    alt="Ícone de Dinheiro"
+                                    class="step-img-icon"
+                                />
+                                <h3>Faça o pagamento</h3>
+                                <p>
+                                    Escolha seu plano preferido e faça o
+                                    pagamento de forma rápida e segura.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="step-card">
+                            <span class="step-number">3</span>
+                            <div class="step-content">
+                                <img
+                                    src="assets/qrcode_icon.png"
+                                    alt="Ícone de QR Code"
+                                    class="step-img-icon"
+                                />
+                                <h3>Receba seu acesso</h3>
+                                <p>
+                                    Você receberá por email o link para acessar
+                                    sua página.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="step-card">
+                            <span class="step-number">4</span>
+                            <div class="step-content">
+                                <img
+                                    src="assets/heart_icon.png"
+                                    alt="Ícone de Coração"
+                                    class="step-img-icon"
+                                />
+                                <h3>Compartilhe o amor</h3>
+                                <p>
+                                    Compartilhe a página com a pessoa amada e
+                                    surpreenda-a de forma especial.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="features-section">
+                <div class="container">
+                    <h2 style="font-size: 2rem">Recursos Exclusivos</h2>
+                    <p class="hero-subtitle">
+                        Nossa plataforma oferece recursos incríveis para você
+                        criar a página personalizada perfeita.
+                    </p>
+
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <img
+                                src="assets/calendario_icon.png"
+                                alt="Ícone de Calendário"
+                                class="feature-img-icon"
+                            />
+                            <h3>Contador de tempo</h3>
+                            <p>
+                                Mostre há quanto tempo vocês estão juntos com um
+                                contador em tempo real.
+                            </p>
+                        </div>
+                        <div class="feature-card">
+                            <img
+                                src="assets/music_icon.png"
+                                alt="Ícone de Música"
+                                class="feature-img-icon"
+                            />
+                            <h3>Música dedicada</h3>
+                            <p>
+                                Dedique uma música especial. A música será
+                                reproduzida automaticamente na página.
+                            </p>
+                        </div>
+                        <div class="feature-card">
+                            <img
+                                src="assets/qrcode_icon.png"
+                                alt="Ícone de QR Code"
+                                class="feature-img-icon"
+                            />
+                            <h3>QR Code exclusivo</h3>
+                            <p>
+                                Crie um QR Code exclusivo para sua página,
+                                gerado automaticamente.
+                            </p>
+                        </div>
+                        <div class="feature-card">
+                            <img
+                                src="assets/link_icon.png"
+                                alt="Ícone de Link"
+                                class="feature-img-icon"
+                            />
+                            <h3>URL personalizada</h3>
+                            <p>
+                                Crie uma URL personalizada para sua página,
+                                gerada automaticamente.
+                            </p>
+                        </div>
+                        <div class="feature-card">
+                            <img
+                                src="assets/world_icon.png"
+                                alt="Ícone de Mundo"
+                                class="feature-img-icon"
+                            />
+                            <h3>Em todo lugar</h3>
+                            <p>
+                                Crie e compartilhe de qualquer lugar do mundo.
+                                Aceitamos pagamentos internacionais.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section class="plans-section" id="plans">
+                <div class="container">
+                    <h2 style="font-size: 2rem">Escolha o plano ideal</h2>
+
+                    <div class="plans-grid">
+                        <div class="plan-card">
+                            <h3>Momento</h3>
+                            <p>Este plano tem um período de 1 dia.</p>
+                            <span class="plan-price"
+                                >R$ 20,00
+                                <span
+                                    style="
+                                        font-size: 1rem;
+                                        font-weight: 400;
+                                        color: var(--color-text-light);
+                                    "
+                                    >/uma vez</span
+                                ></span
+                            >
+
+                            <ul class="feature-list">
+                                <li>
+                                    <i class="fas fa-check"></i> Contador em
+                                    tempo real
+                                </li>
+                                <li>
+                                    <i class="fas fa-check"></i> Texto dedicado
+                                </li>
+                                <li>
+                                    <i class="fas fa-check"></i> Data de início
+                                </li>
+                                <li>
+                                    <i class="fas fa-check"></i> QR Code
+                                    exclusivo
+                                </li>
+                                <li>
+                                    <i class="fas fa-check"></i> Máximo de 4
+                                    imagens
+                                </li>
+                                <li>
+                                    <i class="fas fa-check"></i> URL
+                                    personalizada
+                                </li>
+                                <li>
+                                    <i class="fas fa-check"></i> Suporte 24
+                                    horas
+                                </li>
+                                <li>
+                                    <i
+                                        class="fas fa-times"
+                                        style="color: #ccc"
+                                    ></i>
+                                    Sem música
+                                </li>
+                            </ul>
+                            <a
+                                href="#"
+                                class="cta-button whatsapp-plan-cta"
+                                data-plan="Momento"
+                                style="width: 100%; text-align: center"
+                                >APROVEITAR AGORA</a
+                            >
+                        </div>
+
+                        <div class="plan-card recommended">
+                            <div
+                                style="
+                                    background-color: var(--color-success);
+                                    color: var(--color-white);
+                                    padding: 5px 10px;
+                                    border-radius: 50px;
+                                    display: inline-block;
+                                    font-size: 0.8rem;
+                                    margin-bottom: 10px;
+                                "
+                            >
+                                RECOMENDADO
+                            </div>
+                            <h3>Para sempre</h3>
+                            <p style="color: var(--color-off-white)">
+                                Este plano é vitalício, não precisa renovar.
+                            </p>
+                            <span class="plan-price"
+                                >R$ 27,00
+                                <span
+                                    style="
+                                        font-size: 1rem;
+                                        font-weight: 400;
+                                        color: var(--color-off-white);
+                                    "
+                                    >/uma vez</span
+                                ></span
+                            >
+
+                            <ul class="feature-list">
+                                <li>
+                                    <i class="fas fa-check"></i> Contador em
+                                    tempo real
+                                </li>
+                                <li>
+                                    <i class="fas fa-check"></i> Texto dedicado
+                                </li>
+                                <li>
+                                    <i class="fas fa-check"></i> Data de início
+                                </li>
+                                <li>
+                                    <i class="fas fa-check"></i> QR Code
+                                    exclusivo
+                                </li>
+                                <li>
+                                    <i class="fas fa-check"></i> Máximo de 8
+                                    imagens
+                                </li>
+                                <li>
+                                    <i class="fas fa-check"></i> URL
+                                    personalizada
+                                </li>
+                                <li>
+                                    <i class="fas fa-check"></i> Suporte 24
+                                    horas
+                                </li>
+                                <li>
+                                    <i class="fas fa-check"></i> Com música e
+                                    fundo dinâmico
+                                </li>
+                            </ul>
+                            <a
+                                href="#"
+                                class="cta-button whatsapp-plan-cta"
+                                data-plan="Para sempre"
+                                style="width: 100%; text-align: center"
+                                >Aproveitar agora</a
+                            >
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="testimonials-section" id="testimonials">
+                <div class="container">
+                    <h2 style="font-size: 2rem">
+                        O que nossos clientes estão dizendo...
+                    </h2>
+
+                    <div class="testimonial-grid">
+                        <div class="testimonial-card">
+                            <div class="client-info">
+                                <img
+                                    src="assets/gabriel.jpeg"
+                                    alt="gabriel"
+                                    class="client-photo"
+                                />
+                                <div>
+                                    <p style="font-weight: 600">Gabriel</p>
+                                    <p
+                                        style="
+                                            font-size: 0.8rem;
+                                            color: var(--color-text-light);
+                                        "
+                                    >
+                                        1 mês atrás
+                                    </p>
+                                </div>
+                            </div>
+                            <p class="testimonial-text">
+                                Adorei a experiência! Pude criar uma página
+                                especial com nossas fotos favoritas, uma
+                                playlist personalizada e um texto que representa
+                                nossa história. Ele ficou super emocionado!
+                            </p>
+                        </div>
+                        <div class="testimonial-card">
+                            <div class="client-info">
+                                <img
+                                    src="assets/pedro.jpeg"
+                                    alt="Ana e Pedro"
+                                    class="client-photo"
+                                />
+                                <div>
+                                    <p style="font-weight: 600">Ana e Pedro</p>
+                                    <p
+                                        style="
+                                            font-size: 0.8rem;
+                                            color: var(--color-text-light);
+                                        "
+                                    >
+                                        2 dias atrás
+                                    </p>
+                                </div>
+                            </div>
+                            <p class="testimonial-text">
+                                Com o Love Minion, pude expressar meu amor de um
+                                jeito totalmente diferente. Adorei criar uma
+                                página só para nós dois. Super intuitivo!
+                            </p>
+                        </div>
+                        <div class="testimonial-card">
+                            <div class="client-info">
+                                <img
+                                    src="assets/jones.jpeg"
+                                    alt="Lucas"
+                                    class="client-photo"
+                                />
+                                <div>
+                                    <p style="font-weight: 600">Lucas</p>
+                                    <p
+                                        style="
+                                            font-size: 0.8rem;
+                                            color: var(--color-text-light);
+                                        "
+                                    >
+                                        3 meses atrás
+                                    </p>
+                                </div>
+                            </div>
+                            <p class="testimonial-text">
+                                Montei uma página surpresa para a Carol, com
+                                nossas fotos de viagem e uma mensagem sincera.
+                                Ela adorou! Com certeza vou usar de novo.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="faq-section" id="faq">
+                <div class="container">
+                    <h2 style="font-size: 2rem">Perguntas Frequentes</h2>
+                    <div class="faq-list">
+                        <div class="faq-item">
+                            <h3 class="faq-question">O que é o Love Minion?</h3>
+                            <p class="faq-answer">
+                                O Minion é uma plataforma que permite criar
+                                páginas personalizadas e interativas para
+                                declarações e celebrações de amor, como um
+                                presente digital exclusivo.
+                            </p>
+                        </div>
+                        <div class="faq-item">
+                            <h3 class="faq-question">
+                                Como posso criar uma página personalizada na
+                                Love Minion?
+                            </h3>
+                            <p class="faq-answer">
+                                O processo é simples: escolha seu plano,
+                                personalize com fotos, textos e músicas na nossa
+                                interface amigável e pronto, sua página estará
+                                no ar em até 3 dias!
+                            </p>
+                        </div>
+                        <div class="faq-item">
+                            <h3 class="faq-question">
+                                A página personalizada tem validade?
+                            </h3>
+                            <p class="faq-answer">
+                                Depende do plano. O plano Momento dura 1 dia, e
+                                o plano Para Sempre é vitalício, garantindo que
+                                sua declaração fique para sempre online.
+                            </p>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 2rem">
+                        <p style="color: var(--color-text-light)">
+                            Dúvidas? Entre em contato por aqui:
+                        </p>
+                        <a
+                            href="https://instagram.com/loveminion.oficial"
+                            target="_blank"
+                            style="font-weight: 600"
+                            >@LoveMinion.Oficial</a
+                        >
+                    </div>
+                </div>
+            </section>
+
+            <section class="final-cta-section">
+                <div class="container">
+                    <h2 style="font-size: 2rem">
+                        Declare seu amor de forma única
+                    </h2>
+                    <a href="#plans" class="cta-button">Criar minha página</a>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <div class="container footer-content">
+                <div class="footer-info-section">
+                    <p class="logo" style="color: var(--color-primary)">
+                        Love Minion
+                    </p>
+                    <p>
+                        O Love Minion é uma plataforma que permite criar páginas
+                        personalizadas para pessoas especiais.
+                    </p>
+                </div>
+
+                <div class="footer-links">
+                    <a href="#">Termos de uso</a>
+                    <a href="#">Política de privacidade</a>
+                </div>
+            </div>
+
+            <div
+                class="container"
+                style="
+                    margin-top: 1.5rem;
+                    border-top: 1px solid rgba(255, 255, 255, 0.1);
+                    padding-top: 1.5rem;
+                "
+            >
+                <p>
+                    Copyright © 2025 - Love Minion (Não temos associação com o
+                    filme)
+                </p>
+            </div>
+        </footer>
+
+        <script>
+            const menuToggle = document.getElementById("menuToggle");
+            const navMenu = document.getElementById("navMenu");
+
+            // Toggle do Menu Hambúrguer
+            menuToggle.addEventListener("click", () => {
+                navMenu.classList.toggle("active");
+                menuToggle.querySelector("i").classList.toggle("fa-bars");
+                menuToggle.querySelector("i").classList.toggle("fa-times");
+            });
+
+            // Simulação de FAQ Accordion
+            document.querySelectorAll(".faq-question").forEach((question) => {
+                question.addEventListener("click", () => {
+                    const answer = question.nextElementSibling;
+                    const isVisible = answer.style.display === "block";
+
+                    // Fecha todos os outros
+                    document
+                        .querySelectorAll(".faq-answer")
+                        .forEach((ans) => (ans.style.display = "none"));
+                    document
+                        .querySelectorAll(".faq-question")
+                        .forEach((q) => q.classList.remove("active"));
+
+                    // Abre ou fecha o item clicado
+                    if (!isVisible) {
+                        answer.style.display = "block";
+                        question.classList.add("active");
+                    }
+                });
+            });
+            const whatsappCTAs =
+                document.querySelectorAll(".whatsapp-plan-cta");
+            const phoneNumber = "5511970688232"; // Seu número de WhatsApp
+
+            whatsappCTAs.forEach((button) => {
+                button.addEventListener("click", function (e) {
+                    e.preventDefault();
+
+                    const planName = this.getAttribute("data-plan");
+                    let messageTemplate = `Olá! Tenho interesse em comprar o plano ${planName}.`;
+                    let requirements = "Fotos e textos.";
+
+                    if (planName === "Para sempre") {
+                        requirements =
+                            "Máximo de 8 fotos, textos dedicados e a música para o fundo.";
+                    } else if (planName === "Momento") {
+                        requirements =
+                            "Máximo de 4 fotos e textos dedicados. (Este plano NÃO inclui música).";
+                    }
+
+                    const finalMessage = `
+            ${messageTemplate}
+
+            Meu nome é: ___
+            O nome da minha pessoa amada é: ___
+            Material necessário: ${requirements}
+
+            Por favor, me informe o próximo passo para personalização!
+            `;
+
+                    const encodedMessage = encodeURIComponent(
+                        finalMessage.trim(),
+                    );
+
+                    // Abre o WhatsApp
+                    window.open(
+                        `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodedMessage}`,
+                        "_blank",
+                    );
+                });
+            });
+
+            // ... Mantenha o restante do seu JavaScript (menu e FAQ) aqui, se for o caso.
+        </script>
+    </body>
+</html>
