@@ -231,16 +231,22 @@
             }
 
             .mockup-placeholder {
+                max-width: 100%;
                 width: 100%;
-                height: 300px;
-                background: url("https://source.unsplash.com/random/800x600/?couple,website,screen,dark")
-                    no-repeat center center/cover;
+                overflow:hidden;
                 border-top-left-radius: 12px;
                 border-top-right-radius: 12px;
                 box-shadow: 0 -5px 20px var(--color-shadow);
                 margin-top: 2rem;
                 opacity: 0.9; /* Um pouco mais de opacidade */
                 border-top: 1px solid var(--color-border-dark); /* Borda superior sutil */
+            }
+
+            video {
+                width: 100%;
+                height: auto;
+                max-width: 100%;
+                display: block;
             }
 
             /* --- 3. COMO FUNCIONA (4 Passos) --- */
@@ -731,7 +737,6 @@
                     <video controls autoplay muted loop
                         alt="Mockup do site de contagem regressiva"
                         style="
-                            object-fit: cover;
                             border-radius: 12px 12px 0 0;
                         "
                             <source src ="assets/mockup.mp4" type="video/mp4" />
