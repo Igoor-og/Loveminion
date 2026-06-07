@@ -1,0 +1,3135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nosso Presente ❤️</title>
+  
+  <!-- Fontes do Google -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Jost:wght@300;400;500;600;700&family=Caveat:wght@700&display=swap" rel="stylesheet">
+  
+  <!-- Leaflet Map CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+
+  <style>
+    /* ── SISTEMA DE CORES E VARIÁVEIS (REFINADOS) ── */
+    :root {
+      --rosa: #e8576a;
+      --rosa-hover: #ff758c;
+      --rosa-escuro: #b53b4e;
+      --rosa-claro: #fde8eb;
+      --vermelho: #d42b44;
+      --fundo: #1d0a0d; /* Fundo escuro vinho profundo conforme referências */
+      --fundo-card: #120507; /* Cartões pretos sólidos e profundos */
+      --borda-card: rgba(255, 255, 255, 0.04);
+      --texto: #ffffff;
+      --texto-muted: #a67c83;
+      --font-serif: 'Playfair Display', serif;
+      --font-sans: 'Jost', sans-serif;
+      --font-hand: 'Caveat', cursive;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      outline: none;
+    }
+
+    body {
+      background: radial-gradient(circle at center, #2e1217 0%, #0d0305 100%);
+      color: var(--texto);
+      font-family: var(--font-sans);
+      overflow: hidden;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* ── CONTAINER DO DISPOSITIVO MÓVEL ── */
+    .app-phone {
+      width: 100%;
+      height: 100vh;
+      background: var(--fundo);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    @media (min-width: 500px) {
+      .app-phone {
+        width: 390px; /* Largura padrão iPhone */
+        height: 844px;
+        border-radius: 40px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.95), 0 0 0 12px #221517;
+        border: 4px solid #3d2529;
+      }
+    }
+
+    /* ── HEADER SUPERIOR DO APP (STICKY HEADER) ── */
+    .app-sticky-header {
+      background: #2d0e13;
+      border-bottom: none;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 90;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .header-btn {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+    .header-btn:hover {
+      opacity: 1;
+    }
+    .header-title-text {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 60%;
+      text-align: center;
+    }
+
+    /* Viewport rolável interna da página principal */
+    .app-viewport {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+      position: relative;
+      z-index: 1;
+      padding-bottom: 24px;
+      background: var(--fundo);
+    }
+
+    /* Custom Scrollbar */
+    .app-viewport::-webkit-scrollbar {
+      width: 4px;
+    }
+    .app-viewport::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.2);
+    }
+    .app-viewport::-webkit-scrollbar-thumb {
+      background: var(--rosa-escuro);
+      border-radius: 10px;
+    }
+
+    /* ── PARTÍCULAS EM SEGUNDO PLANO ── */
+    #particles-bg {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .particula-coracao {
+      position: absolute;
+      color: var(--rosa);
+      font-size: 14px;
+      opacity: 0;
+      animation: flutuarCoracao 7s linear infinite;
+      pointer-events: none;
+    }
+    @keyframes flutuarCoracao {
+      0% { transform: translateY(105vh) translateX(0) rotate(0deg); opacity: 0; }
+      10% { opacity: 0.6; }
+      90% { opacity: 0.4; }
+      100% { transform: translateY(-10vh) translateX(var(--drift)) rotate(var(--rotacao)); opacity: 0; }
+    }
+
+    /* ── TELA DE ABERTURA ── */
+    #abertura {
+      position: absolute;
+      inset: 0;
+      background: #0f0305;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 32px;
+      text-align: center;
+      transition: opacity 0.8s ease, visibility 0.8s;
+    }
+    #abertura.saindo {
+      opacity: 0;
+      visibility: hidden;
+    }
+    .coracao-abertura-btn {
+      background: none;
+      border: none;
+      font-size: 84px;
+      cursor: pointer;
+      animation: pulsarCoracao 1.4s ease-in-out infinite;
+      filter: drop-shadow(0 0 25px rgba(232, 87, 106, 0.7));
+      transition: transform 0.2s;
+    }
+    .coracao-abertura-btn:hover {
+      transform: scale(1.1);
+    }
+    @keyframes pulsarCoracao {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.18); }
+    }
+    .titulo-abertura {
+      font-family: var(--font-serif);
+      font-size: 2rem;
+      font-style: italic;
+      color: var(--rosa-claro);
+      margin-top: 24px;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: subirFade 1s forwards 0.3s;
+    }
+    .sub-abertura {
+      font-size: 0.8rem;
+      color: var(--texto-muted);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-top: 12px;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: subirFade 1s forwards 0.7s;
+    }
+    .clique-abrir {
+      font-size: 0.85rem;
+      color: var(--rosa);
+      margin-top: 48px;
+      letter-spacing: 1px;
+      animation: piscarTexto 1.5s infinite;
+      opacity: 0;
+      animation-delay: 1.2s;
+    }
+    @keyframes subirFade {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes piscarTexto {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+
+    /* ── SEÇÃO PLAYER SPOTIFY (INTEGRADO E PIXEL PERFECT) ── */
+    .player-section {
+      background: linear-gradient(to bottom, #2d0e13 0%, #170709 100%);
+      padding: 12px 24px 24px 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+    .capa-container-square {
+      width: 100%;
+      aspect-ratio: 1;
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+      background-color: #0d0305;
+      margin-bottom: 20px;
+    }
+    .capa-slide {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+      background-size: cover;
+      background-position: center;
+    }
+    .capa-slide.active {
+      opacity: 1;
+    }
+    .capa-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(29, 10, 13, 0.4) 0%, transparent 40%);
+    }
+    .player-info-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .player-info {
+      flex: 1;
+      overflow: hidden;
+    }
+    .player-titulo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow: hidden;
+    }
+    .player-titulo-musica {
+      font-size: 1.25rem;
+      font-weight: 700;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      color: #fff;
+    }
+    .player-verified-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #1ed760;
+      flex-shrink: 0;
+    }
+    .player-artista {
+      font-size: 0.88rem;
+      color: var(--texto-muted);
+      margin-top: 4px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+    .player-barra-progresso {
+      margin-bottom: 16px;
+    }
+    .player-slider {
+      width: 100%;
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.16);
+      cursor: pointer;
+      position: relative;
+    }
+    .player-progresso-ativo {
+      height: 100%;
+      width: 0%;
+      background: #fff;
+      border-radius: 2px;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    .player-tempos {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      color: var(--texto-muted);
+      margin-top: 6px;
+      font-weight: 500;
+    }
+    .player-controles {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 4px;
+    }
+    .btn-controle {
+      background: none;
+      border: none;
+      color: var(--texto-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s, transform 0.2s;
+    }
+    .btn-controle:hover {
+      color: #fff;
+    }
+    .btn-controle.btn-play-pause {
+      background: #fff;
+      color: #000;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+    }
+    .btn-controle.btn-play-pause:hover {
+      transform: scale(1.06);
+      color: #000;
+    }
+    .btn-controle.ativo {
+      color: var(--rosa);
+    }
+    .player-volume-control {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+      margin-top: 12px;
+      opacity: 0.4;
+      transition: opacity 0.2s;
+    }
+    .player-volume-control:hover {
+      opacity: 0.8;
+    }
+    .player-volume-slider {
+      width: 60px;
+      accent-color: #fff;
+      height: 2px;
+      cursor: pointer;
+    }
+
+    /* ── ANIMATIONS AND SCROLL EFFECTS ── */
+    .animate-on-scroll {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .animate-on-scroll.animated {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Entrance animations for slides */
+    .wrapped-slide .slide-tag,
+    .wrapped-slide .slide-titulo,
+    .wrapped-slide .roleta-container,
+    .wrapped-slide .timeline-container,
+    .wrapped-slide .estrelas-container,
+    .wrapped-slide .stories-container,
+    .wrapped-slide .wordle-container,
+    .wrapped-slide .map-slide-container,
+    .wrapped-slide .natal-container {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .wrapped-slide.active .slide-tag {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.1s;
+    }
+    .wrapped-slide.active .slide-titulo {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.2s;
+    }
+    .wrapped-slide.active .roleta-container,
+    .wrapped-slide.active .timeline-container,
+    .wrapped-slide.active .estrelas-container,
+    .wrapped-slide.active .stories-container,
+    .wrapped-slide.active .wordle-container,
+    .wrapped-slide.active .map-slide-container,
+    .wrapped-slide.active .natal-container {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: 0.35s;
+    }
+
+    /* ── SOBRE O CASAL & CONTADOR DE TEMPO JUNTOS ── */
+    .sobre-card {
+      background: var(--fundo-card);
+      border: 1px solid var(--borda-card);
+      border-radius: 20px;
+      margin: 0 16px 16px 16px;
+      overflow: hidden;
+      padding: 0;
+    }
+    .sobre-foto-wrapper {
+      position: relative;
+      width: 100%;
+      height: 180px;
+      background-color: #0c0204;
+    }
+    .sobre-foto-banner {
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+    }
+    .sobre-header-overlay-tag {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.8);
+    }
+    .sobre-conteudo {
+      padding: 20px;
+      text-align: center;
+    }
+    .sobre-nomes {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .sobre-nomes span {
+      color: var(--rosa);
+    }
+    .sobre-data {
+      font-size: 0.8rem;
+      color: var(--texto-muted);
+      margin-bottom: 20px;
+    }
+    .sobre-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .sobre-box {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.02);
+      border-radius: 12px;
+      padding: 12px 6px;
+      text-align: center;
+      transition: background 0.2s;
+    }
+    .sobre-box:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .sobre-box-num {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+      display: block;
+      line-height: 1.1;
+    }
+    .sobre-box-label {
+      font-size: 0.65rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--texto-muted);
+      margin-top: 4px;
+      display: block;
+    }
+
+    /* ── MENSAGEM ESPECIAL (CARTA) ── */
+    .mensagem-card {
+      background: linear-gradient(135deg, #c13a4f 0%, #8b1e2f 100%);
+      border-radius: 20px;
+      margin: 0 16px 16px 16px;
+      padding: 20px;
+      text-align: left;
+      position: relative;
+    }
+    .mensagem-tag {
+      font-size: 0.7rem;
+      color: rgba(255, 255, 255, 0.7);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 6px;
+    }
+    .mensagem-titulo {
+      font-family: var(--font-serif);
+      font-size: 1.25rem;
+      font-style: italic;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+    .mensagem-breve {
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: rgba(255, 255, 255, 0.85);
+      margin-bottom: 16px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .btn-abrir-carta {
+      background: #fff;
+      color: #8b1e2f;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transition: background 0.2s, transform 0.2s;
+    }
+    .btn-abrir-carta:hover {
+      background: var(--rosa-claro);
+      transform: translateY(-1px);
+    }
+
+    /* OVERLAY CARTA ABERTA TELA CHEIA */
+    #carta-aberta-overlay {
+      position: absolute;
+      inset: 0;
+      background: #8e1b2f;
+      background: radial-gradient(circle at center, #a52339 0%, #6d101e 100%);
+      z-index: 100;
+      display: none;
+      flex-direction: column;
+      padding: 20px 24px;
+      animation: deslizarSubir 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      overflow-y: auto;
+    }
+    @keyframes deslizarSubir {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .carta-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      height: 40px;
+    }
+    .carta-music-playing-indicator {
+      flex: 1;
+      text-align: center;
+      margin: 0 16px;
+      overflow: hidden;
+    }
+    .carta-music-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+    .carta-music-artist {
+      font-size: 0.7rem;
+      color: rgba(255, 255, 255, 0.6);
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+    .carta-fechar {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+    }
+    .carta-corpo {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 20px 0;
+    }
+    .carta-texto {
+      font-family: var(--font-serif);
+      font-size: 1.25rem;
+      line-height: 1.8;
+      font-style: italic;
+      color: #fff;
+      text-align: center;
+      white-space: pre-line;
+    }
+    .carta-assinatura {
+      font-family: var(--font-hand);
+      font-size: 2.2rem;
+      color: var(--rosa-claro);
+      margin-top: 24px;
+      text-align: center;
+    }
+    .carta-player-minified {
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 16px;
+      padding: 16px;
+      border: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: auto;
+    }
+    .carta-player-action-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── GRID DE CONQUISTAS ── */
+    .conquistas-card {
+      background: var(--fundo-card);
+      border: 1px solid var(--borda-card);
+      border-radius: 20px;
+      margin: 0 16px 16px 16px;
+      padding: 16px 20px;
+    }
+    .conquistas-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .conquistas-titulo {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .conquistas-progresso {
+      font-size: 0.7rem;
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+    .conquistas-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .conquista-item {
+      aspect-ratio: 1;
+      background: #170709;
+      border: 1px solid rgba(255,255,255,0.02);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      cursor: pointer;
+      transition: transform 0.2s, background 0.2s, border-color 0.2s;
+    }
+    .conquista-item:hover {
+      transform: scale(1.05);
+      background: rgba(255, 255, 255, 0.04);
+    }
+    
+    /* modal de conquista */
+    .conquista-modal {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(5px);
+      z-index: 150;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      animation: fadeIn 0.3s ease forwards;
+    }
+    .conquista-modal-content {
+      background: #160608;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 24px;
+      text-align: center;
+      width: 100%;
+      max-width: 280px;
+      position: relative;
+    }
+    .conquista-modal-icone {
+      font-size: 3rem;
+      margin-bottom: 12px;
+    }
+    .conquista-modal-titulo {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .conquista-modal-desc {
+      font-size: 0.8rem;
+      color: var(--texto-muted);
+      line-height: 1.5;
+    }
+    .conquista-modal-fechar {
+      margin-top: 20px;
+      background: #fff;
+      color: #000;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    /* ── SEÇÃO RETROSPECTIVA ── */
+    .retro-banner {
+      background: #000;
+      border: 1px solid var(--borda-card);
+      border-radius: 20px;
+      margin: 0 16px 16px 16px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .retro-ribbon-canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.6;
+    }
+    .retro-content {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+    }
+    .retro-titulo {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #fff;
+      margin-top: 12px;
+      margin-bottom: 4px;
+    }
+    .retro-desc {
+      font-size: 0.8rem;
+      color: var(--texto-muted);
+      margin-bottom: 20px;
+    }
+    .btn-vamos-la {
+      background: #fff;
+      color: #000;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(255,255,255,0.2);
+      transition: background 0.2s, transform 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-vamos-la:hover {
+      background: var(--rosa-claro);
+    }
+
+    /* ── ESTRUTURA GERAL DO WRAPPED ── */
+    #wrapped-page {
+      position: absolute;
+      inset: 0;
+      z-index: 200;
+      background: #090204;
+      display: none;
+      flex-direction: column;
+      animation: fadeIn 0.4s ease forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .wrapped-progress-container {
+      display: flex;
+      gap: 5px;
+      padding: 16px 16px 8px 16px;
+      flex-shrink: 0;
+    }
+    .wrapped-progress-track {
+      flex: 1;
+      height: 2px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .wrapped-progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--rosa);
+      transition: width 0.1s linear;
+    }
+    .wrapped-progress-track.seen .wrapped-progress-fill {
+      width: 100%;
+    }
+    .wrapped-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 16px;
+      height: 40px;
+      flex-shrink: 0;
+    }
+    .wrapped-header-title {
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--texto-muted);
+      font-weight: 700;
+    }
+    .wrapped-fechar-btn {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.4rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Viewport dos Slides */
+    .wrapped-slides-viewport {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .wrapped-slide {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+      overflow-y: auto;
+    }
+    .wrapped-slide::-webkit-scrollbar {
+      display: none;
+    }
+    .wrapped-slide.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Footer do Wrapped */
+    .wrapped-nav-footer {
+      padding: 12px 16px 20px 16px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-shrink: 0;
+      background: #090204;
+    }
+    .btn-wrapped-nav {
+      flex: 1;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s, opacity 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn-wrapped-nav.btn-voltar {
+      background: rgba(255,255,255,0.06);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .btn-wrapped-nav.btn-proximo {
+      background: #8e2de2;
+      background: linear-gradient(135deg, #a044ff, #6a11cb);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(160, 68, 255, 0.2);
+    }
+    .btn-wrapped-nav:disabled {
+      opacity: 0.25;
+      cursor: not-allowed;
+    }
+
+    /* TÍTULOS E ESTRUTURA DOS SLIDES */
+    .slide-intro-info {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .slide-tag {
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      color: var(--rosa);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      display: block;
+      font-weight: 600;
+    }
+    .slide-titulo {
+      font-family: var(--font-serif);
+      font-size: 1.45rem;
+      font-style: italic;
+      line-height: 1.25;
+      color: #fff;
+    }
+    .slide-titulo span {
+      color: var(--rosa);
+    }
+
+    /* ── SLIDE 1: ROLETA ── */
+    .roleta-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .roleta-box {
+      position: relative;
+      width: 230px;
+      height: 230px;
+      margin-bottom: 20px;
+    }
+    .roleta-canvas-elem {
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(0 0 15px rgba(106, 17, 203, 0.4));
+    }
+    .roleta-pin-top {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-top: 18px solid var(--rosa);
+      z-index: 10;
+    }
+    .roleta-center-heart {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40px;
+      height: 40px;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      z-index: 5;
+    }
+    .btn-girar-roleta {
+      background: #fff;
+      color: #000;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(255,255,255,0.15);
+    }
+    .roleta-resultado {
+      position: absolute;
+      bottom: 50px;
+      background: rgba(18, 5, 7, 0.95);
+      border: 1px solid var(--rosa);
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-align: center;
+      display: none;
+      animation: zoomIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      max-width: 80%;
+      z-index: 10;
+    }
+
+    /* ── SLIDE 2: LINHA DO TEMPO (ALTERNADA) ── */
+    .timeline-container {
+      padding: 20px 0;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .timeline-linha-central {
+      position: absolute;
+      top: 0; bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2px;
+      background: var(--rosa);
+      opacity: 0.35;
+    }
+    .tl-slide-item {
+      display: flex;
+      width: 100%;
+      margin-bottom: 32px;
+      position: relative;
+      align-items: flex-start;
+    }
+    .tl-slide-item.tl-left {
+      flex-direction: row;
+    }
+    .tl-slide-item.tl-right {
+      flex-direction: row-reverse;
+    }
+    .tl-slide-heart-dot {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 22px;
+      height: 22px;
+      background: #090204;
+      border: 2px solid var(--rosa);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.55rem;
+      color: var(--rosa);
+      z-index: 5;
+    }
+    .tl-slide-col {
+      width: 46%;
+      box-sizing: border-box;
+    }
+    .tl-slide-info {
+      padding: 4px 10px;
+    }
+    .tl-slide-data {
+      font-size: 0.72rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--rosa);
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .tl-slide-titulo {
+      font-family: var(--font-serif);
+      font-size: 0.95rem;
+      font-style: italic;
+      color: #fff;
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+    .tl-slide-desc {
+      font-size: 0.75rem;
+      color: var(--texto-muted);
+      line-height: 1.5;
+    }
+    .tl-polaroid-side {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding-top: 4px;
+    }
+    .tl-polaroid {
+      background: #fff;
+      padding: 6px 6px 12px 6px;
+      border-radius: 6px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.35);
+      transform: rotate(var(--rot));
+      width: 100%;
+      max-width: 125px;
+      box-sizing: border-box;
+    }
+    .tl-polaroid-foto {
+      width: 100%;
+      aspect-ratio: 1;
+      background-size: cover;
+      background-position: center;
+      border-radius: 2px;
+      background-color: #1a1a1a;
+    }
+    .tl-polaroid-legenda {
+      font-family: var(--font-hand);
+      font-size: 1rem;
+      color: #2b1317;
+      text-align: center;
+      margin-top: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .tl-slide-encerramento {
+      width: 100%;
+      text-align: center;
+      font-family: var(--font-serif);
+      font-size: 1.1rem;
+      font-style: italic;
+      color: var(--rosa);
+      margin-top: 16px;
+      z-index: 2;
+    }
+
+    /* ── SLIDE 3: MAPA DAS ESTRELAS ── */
+    .estrelas-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 0;
+    }
+    .estrelas-mapa-circulo {
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, #05020a 0%, #0d030f 100%);
+      border: 2px solid rgba(232, 87, 106, 0.3);
+      position: relative;
+      box-shadow: 0 0 25px rgba(106, 17, 203, 0.2);
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .estrelas-svg-content {
+      width: 100%;
+      height: 100%;
+    }
+    .estrelas-detalhes {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      padding: 12px 16px;
+      border-radius: 12px;
+      width: 100%;
+    }
+    .estrelas-subtitulo {
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--rosa);
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .estrelas-local {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #fff;
+    }
+    .estrelas-data {
+      font-size: 0.75rem;
+      color: var(--texto-muted);
+      margin-top: 2px;
+    }
+    .estrelas-coords {
+      font-size: 0.7rem;
+      color: var(--rosa-claro);
+      opacity: 0.65;
+      margin-top: 4px;
+    }
+
+    /* ── SLIDE 4: STORIES GALLERY ── */
+    .stories-container {
+      flex: 1;
+      position: relative;
+      width: 100%;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #000;
+    }
+    .story-progress-indicator {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      display: flex;
+      gap: 3px;
+      z-index: 10;
+    }
+    .story-progress-bar {
+      flex: 1;
+      height: 2px;
+      background: rgba(255,255,255,0.25);
+      border-radius: 1px;
+      overflow: hidden;
+    }
+    .story-progress-fill-node {
+      height: 100%;
+      width: 0%;
+      background: #fff;
+      transition: width 0.1s linear;
+    }
+    .story-progress-bar.visto .story-progress-fill-node {
+      width: 100%;
+    }
+    .story-slide-item {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      display: flex;
+      align-items: flex-end;
+      padding: 20px;
+    }
+    .story-slide-item.active {
+      opacity: 1;
+    }
+    .story-overlay-shade {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.1) 60%, transparent 100%);
+      pointer-events: none;
+    }
+    .story-content-box {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+    }
+    .story-title {
+      font-family: var(--font-serif);
+      font-size: 1.25rem;
+      font-style: italic;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .story-desc {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.45;
+    }
+    .story-nav-tap {
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 50%;
+      z-index: 5;
+    }
+    .story-nav-tap.left { left: 0; }
+    .story-nav-tap.right { right: 0; }
+
+    /* ── SLIDE 5: JOGO DA PALAVRA (WORDLE) ── */
+    .wordle-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .wordle-clue {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--texto-muted);
+      margin-bottom: 12px;
+      line-height: 1.45;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.04);
+      padding: 8px 12px;
+      border-radius: 12px;
+      width: 100%;
+    }
+    .wordle-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 16px;
+    }
+    .wordle-row {
+      display: flex;
+      gap: 5px;
+    }
+    .wordle-cell {
+      width: 38px;
+      height: 38px;
+      border: 2px solid rgba(255,255,255,0.12);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #fff;
+      transition: background 0.3s, border-color 0.1s;
+    }
+    .wordle-cell.filled {
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+    .wordle-cell.shake {
+      animation: shakeRow 0.2s 2 ease;
+    }
+    .wordle-cell.correct { background: #2b7d41; border-color: #2b7d41; }
+    .wordle-cell.present { background: #b59218; border-color: #b59218; }
+    .wordle-cell.absent { background: #2c2c2e; border-color: #2c2c2e; }
+
+    .wordle-keyboard {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      width: 100%;
+    }
+    .keyboard-row {
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+    }
+    .key-btn {
+      background: #1c1c1e;
+      border: none;
+      color: #fff;
+      border-radius: 4px;
+      padding: 10px 2px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      flex: 1;
+      min-width: 18px;
+      text-align: center;
+    }
+    .key-btn.correct { background: #2b7d41; }
+    .key-btn.present { background: #b59218; }
+    .key-btn.absent { background: #3a3a3c; }
+    .key-btn.wide { flex: 1.4; font-size: 0.65rem; }
+
+    /* ── SLIDE 6: JORNADA NO MAPA ── */
+    .map-slide-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      width: 100%;
+    }
+    #wrapped-map {
+      width: 100%;
+      height: 240px;
+      border-radius: 16px;
+      border: 1px solid var(--borda-card);
+      z-index: 5;
+    }
+    .map-help-text {
+      font-size: 0.75rem;
+      color: var(--texto-muted);
+      text-align: center;
+      margin-top: 10px;
+      font-style: italic;
+    }
+
+    /* ── SLIDE 7: NATAL MÁGICO ── */
+    #slide-natal {
+      background: linear-gradient(to bottom, #0a1628 0%, #0f1f3a 40%, #162d50 100%) !important;
+      overflow-y: auto;
+      position: relative;
+    }
+    .natal-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      position: relative;
+      padding: 0;
+      min-height: 100%;
+    }
+    .natal-canvas-bg {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .natal-card {
+      background: rgba(18, 5, 7, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 20px;
+      width: calc(100% - 32px);
+      margin: 0 16px 16px 16px;
+      backdrop-filter: blur(10px);
+      text-align: center;
+      z-index: 2;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+    .natal-tree-container {
+      width: 260px;
+      height: 320px;
+      margin: 10px auto 16px auto;
+      position: relative;
+      z-index: 1;
+    }
+    .natal-message {
+      font-family: var(--font-serif);
+      font-size: 1.1rem;
+      font-style: italic;
+      color: #fff;
+      line-height: 1.55;
+    }
+    .btn-compartilhar {
+      background: var(--rosa);
+      color: #fff;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(232, 87, 106, 0.4);
+      margin-top: 16px;
+      transition: transform 0.2s, background-color 0.2s;
+    }
+    .btn-compartilhar:hover {
+      transform: scale(1.03);
+      background: var(--rosa-hover);
+    }
+
+    /* ── CONFETES CANVAS ── */
+    #confetti-canvas {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1000;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- CONTAINER DO CELULAR -->
+  <div class="app-phone" id="app-container-phone">
+    
+    <!-- PARTICULAS EM SEGUNDO PLANO -->
+    <div id="particles-bg"></div>
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- TELA DE ABERTURA -->
+    <div id="abertura">
+      <button class="coracao-abertura-btn" onclick="abrirPresente()">❤️</button>
+      <h1 class="titulo-abertura" id="abertura-titulo-text">Para você, com amor</h1>
+      <p class="sub-abertura">Um presente especial te aguarda</p>
+      <p class="clique-abrir">Toque no coração para abrir</p>
+    </div>
+
+    <!-- CABEÇALHO SUPERIOR STICKY -->
+    <div class="app-sticky-header">
+      <button class="header-btn" onclick="voltarHeaderAction()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <span class="header-title-text" id="app-header-title">Nosso Presente</span>
+      <button class="header-btn" onclick="abrirConfigMenu()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+      </button>
+    </div>
+
+    <!-- VIEWPORT DA PÁGINA PRINCIPAL -->
+    <div class="app-viewport" id="main-viewport-element">
+      
+      <!-- SEÇÃO PLAYER SPOTIFY (INTEGRADO) -->
+      <section class="player-section animate-on-scroll">
+        <!-- CARROSSEL QUADRADO DE CAPA -->
+        <div class="capa-container-square" id="capaCarrossel">
+          <div class="capa-overlay"></div>
+        </div>
+
+        <div class="player-info-row">
+          <div class="player-info">
+            <div class="player-titulo-wrap">
+              <div class="player-titulo-musica" id="p-titulo">Nome da Música</div>
+              <div class="player-verified-badge" title="Música do Casal">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+              </div>
+            </div>
+            <div class="player-artista" id="p-artista">Artista</div>
+          </div>
+        </div>
+
+        <div class="player-barra-progresso">
+          <div class="player-slider" id="p-slider">
+            <div class="player-progresso-ativo" id="p-progresso"></div>
+          </div>
+          <div class="player-tempos">
+            <span id="p-tempo-atual">0:00</span>
+            <span id="p-tempo-total">0:00</span>
+          </div>
+        </div>
+
+        <div class="player-controles">
+          <button class="btn-controle" id="p-shuffle">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="20" y2="20"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+          </button>
+          
+          <button class="btn-controle" onclick="pularMusica(-1)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="19 20 9 12 19 4 19 20"/><rect x="5" y="4" width="3" height="16"/></svg>
+          </button>
+          
+          <button class="btn-controle btn-play-pause" id="btn-play-action">
+            <svg id="play-icon-svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+            <svg id="pause-icon-svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+          </button>
+          
+          <button class="btn-controle" onclick="pularMusica(1)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20 5 4"/><rect x="16" y="4" width="3" height="16"/></svg>
+          </button>
+          
+          <button class="btn-controle" id="p-repeat">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+          </button>
+        </div>
+
+        <div class="player-volume-control">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+          <input type="range" class="player-volume-slider" id="p-volume" min="0" max="100" value="80">
+        </div>
+      </section>
+
+      <!-- SOBRE O CASAL -->
+      <div class="sobre-card animate-on-scroll">
+        <div class="sobre-foto-wrapper">
+          <div class="sobre-foto-banner" id="sobre-foto-avatar"></div>
+          <div class="sobre-header-overlay-tag">Sobre o casal</div>
+        </div>
+        <div class="sobre-conteudo">
+          <h3 class="sobre-nomes" id="sobre-nomes-text">Nomes <span>❤️</span> Nomes</h3>
+          <p class="sobre-data" id="sobre-data-inicio-label">Juntos desde 2025</p>
+          
+          <div class="sobre-grid">
+            <div class="sobre-box">
+              <span class="sobre-box-num" id="cnt-anos">0</span>
+              <span class="sobre-box-label">Anos</span>
+            </div>
+            <div class="sobre-box">
+              <span class="sobre-box-num" id="cnt-meses">0</span>
+              <span class="sobre-box-label">Meses</span>
+            </div>
+            <div class="sobre-box">
+              <span class="sobre-box-num" id="cnt-dias">0</span>
+              <span class="sobre-box-label">Dias</span>
+            </div>
+            <div class="sobre-box">
+              <span class="sobre-box-num" id="cnt-horas">0</span>
+              <span class="sobre-box-label">Horas</span>
+            </div>
+            <div class="sobre-box">
+              <span class="sobre-box-num" id="cnt-minutos">0</span>
+              <span class="sobre-box-label">Minutos</span>
+            </div>
+            <div class="sobre-box">
+              <span class="sobre-box-num" id="cnt-segundos">0</span>
+              <span class="sobre-box-label">Segundos</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MENSAGEM ESPECIAL -->
+      <div class="mensagem-card animate-on-scroll">
+        <p class="mensagem-tag">Mensagem especial</p>
+        <h3 class="mensagem-titulo">Uma carta só para você</h3>
+        <p class="mensagem-breve" id="mensagem-card-preview-text">Mensagem...</p>
+        <button class="btn-abrir-carta" onclick="toggleCarta(true)">Mostrar Mensagem</button>
+      </div>
+
+      <!-- GRID DE CONQUISTAS -->
+      <div class="conquistas-card animate-on-scroll">
+        <div class="conquistas-header">
+          <h3 class="conquistas-titulo">Conquistas</h3>
+          <span class="conquistas-progresso" id="conquistas-count-text">0/4</span>
+        </div>
+        <div class="conquistas-grid" id="conquistas-grid-container"></div>
+      </div>
+
+      <!-- BANNER DA RETROSPECTIVA -->
+      <div class="retro-banner animate-on-scroll">
+        <canvas class="retro-ribbon-canvas" id="ribbonCanvas"></canvas>
+        <div class="retro-content">
+          <p class="slide-tag">Nossa Retrospectiva</p>
+          <h3 class="retro-titulo">Sua Retrospectiva</h3>
+          <p class="retro-desc">Explore o seu tempo de casal</p>
+          <button class="btn-vamos-la" onclick="toggleWrapped(true)">
+            <span>Vamos lá</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- CARTA ABERTA OVERLAY (TELA CHEIA) -->
+    <div id="carta-aberta-overlay">
+      <div class="carta-header">
+        <button class="carta-fechar" onclick="toggleCarta(false)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="carta-music-playing-indicator">
+          <div class="carta-music-title" id="carta-p-title">Música</div>
+          <div class="carta-music-artist" id="carta-p-artist">Artista</div>
+        </div>
+        <button class="header-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        </button>
+      </div>
+
+      <div class="carta-corpo">
+        <p class="carta-texto" id="carta-completa-texto"></p>
+        <div class="carta-assinatura" id="carta-completa-assinatura">Com amor, Igor</div>
+      </div>
+
+      <div class="carta-player-minified">
+        <div class="player-barra-progresso" style="margin-bottom:0;">
+          <div class="player-slider" id="carta-p-slider">
+            <div class="player-progresso-ativo" id="carta-p-progresso"></div>
+          </div>
+        </div>
+        <div class="carta-player-action-row">
+          <button class="btn-controle btn-play-pause" id="carta-btn-play-action" onclick="togglePlayPause()" style="background:#fff; color:#000;">
+            <svg id="carta-play-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+            <svg id="carta-pause-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PÁGINA DO WRAPPED -->
+    <div id="wrapped-page">
+      <div class="wrapped-progress-container" id="wrapped-tracks-container"></div>
+
+      <div class="wrapped-header-bar">
+        <span class="wrapped-header-title" id="wrapped-slide-category-title">Jornada</span>
+        <button class="wrapped-fechar-btn" onclick="toggleWrapped(false)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <div class="wrapped-slides-viewport">
+        <!-- SLIDE 1: ROLETA -->
+        <div class="wrapped-slide" id="slide-roleta">
+          <div class="slide-intro-info">
+            <span class="slide-tag">Para onde vamos sair hoje?</span>
+            <h2 class="slide-titulo" id="roleta-custom-question">Para onde vamos <span>sair hoje?</span></h2>
+          </div>
+          <div class="roleta-container">
+            <div class="roleta-pin-top"></div>
+            <div class="roleta-box">
+              <canvas class="roleta-canvas-elem" id="roletaCanvas" width="500" height="500"></canvas>
+              <div class="roleta-center-heart">❤️</div>
+            </div>
+            <button class="btn-girar-roleta" onclick="girarRoleta()">Girar Roleta</button>
+            <div class="roleta-resultado" id="roleta-resultado-text">Sorteado!</div>
+          </div>
+        </div>
+
+        <!-- SLIDE 2: LINHA DO TEMPO -->
+        <div class="wrapped-slide" id="slide-timeline">
+          <div class="slide-intro-info">
+            <span class="slide-tag">Nossa Jornada</span>
+            <h2 class="slide-titulo">Cada momento que <span>nos trouxe até aqui</span></h2>
+          </div>
+          <div class="timeline-container" id="timeline-slides-container">
+            <div class="timeline-linha-central"></div>
+          </div>
+        </div>
+
+        <!-- SLIDE 3: MAPA DAS ESTRELAS -->
+        <div class="wrapped-slide" id="slide-estrelas">
+          <div class="slide-intro-info">
+            <span class="slide-tag">Mapa das Estrelas</span>
+            <h2 class="slide-titulo">O céu quando <span>nos conhecemos</span></h2>
+          </div>
+          <div class="estrelas-container">
+            <div class="estrelas-mapa-circulo">
+              <svg class="estrelas-svg-content" id="estrelasSvg" viewBox="0 0 200 200"></svg>
+            </div>
+            <div class="estrelas-detalhes">
+              <h4 class="estrelas-subtitulo">✦ Alinhamento Estelar ✦</h4>
+              <p class="estrelas-local" id="estrelas-local-text"></p>
+              <p class="estrelas-data" id="estrelas-data-text"></p>
+              <p class="estrelas-coords" id="estrelas-coords-text"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 4: STORIES -->
+        <div class="wrapped-slide" id="slide-stories">
+          <div class="stories-container" id="stories-slider-viewport">
+            <div class="story-progress-indicator" id="story-progress-indicators-bar"></div>
+            <div class="story-nav-tap left" onclick="navStory(-1)"></div>
+            <div class="story-nav-tap right" onclick="navStory(1)"></div>
+            <div id="story-slides-holder"></div>
+          </div>
+        </div>
+
+        <!-- SLIDE 5: JOGO DA PALAVRA -->
+        <div class="wrapped-slide" id="slide-wordle">
+          <div class="slide-intro-info">
+            <span class="slide-tag">Jogo da Palavra</span>
+            <h2 class="slide-titulo">Descubra a <span>palavra secreta</span></h2>
+          </div>
+          <div class="wordle-container">
+            <div class="wordle-clue" id="wordle-clue-text">Dica</div>
+            <div class="wordle-grid" id="wordle-grid-board"></div>
+            <div class="wordle-keyboard" id="wordle-keyboard-elem"></div>
+          </div>
+        </div>
+
+        <!-- SLIDE 6: JORNADA NO MAPA -->
+        <div class="wrapped-slide" id="slide-mapa">
+          <div class="slide-intro-info">
+            <span class="slide-tag">Nossa Jornada no Mapa</span>
+            <h2 class="slide-titulo">Lugares que <span>marcaram nossa história</span></h2>
+          </div>
+          <div class="map-slide-container">
+            <div id="wrapped-map"></div>
+            <p class="map-help-text">Toque nos corações do mapa para abrir momentos espalhados pelo mundo.</p>
+          </div>
+        </div>
+
+        <!-- SLIDE 7: NATAL MÁGICO -->
+        <div class="wrapped-slide" id="slide-natal">
+          <div class="slide-intro-info">
+            <span class="slide-tag" id="natal-tag-custom">Seu Amor</span>
+            <h2 class="slide-titulo" id="natal-title-custom">EU TE AMO</h2>
+          </div>
+          <div class="natal-container">
+            <canvas class="natal-canvas-bg" id="natalSnowCanvas"></canvas>
+            <div class="natal-tree-container">
+              <svg class="natal-tree-svg" viewBox="0 0 100 120">
+                <polygon points="50,12 53,20 61,20 55,25 57,33 50,28 43,33 45,25 39,20 47,20" fill="#ffdf00" filter="drop-shadow(0 0 3px #ffdf00)"/>
+                <rect x="46" y="100" width="8" height="15" fill="#5c4033" />
+                <polygon points="50,25 25,65 75,65" fill="#1b4d3e" />
+                <polygon points="50,45 20,85 80,85" fill="#174235" />
+                <polygon points="50,65 15,105 85,105" fill="#123329" />
+                <circle cx="50" cy="50" r="3" fill="#d42b44" class="arvore-luz" />
+                <circle cx="38" cy="62" r="3" fill="#ffeb3b" class="arvore-luz" />
+                <circle cx="62" cy="62" r="3" fill="#03a9f4" class="arvore-luz" />
+                <circle cx="45" cy="80" r="3" fill="#e91e63" class="arvore-luz" />
+                <circle cx="58" cy="78" r="3" fill="#ffeb3b" class="arvore-luz" />
+                <circle cx="32" cy="82" r="3" fill="#d42b44" class="arvore-luz" />
+                <circle cx="68" cy="82" r="3" fill="#03a9f4" class="arvore-luz" />
+                <circle cx="40" cy="98" r="3" fill="#03a9f4" class="arvore-luz" />
+                <circle cx="60" cy="98" r="3" fill="#d42b44" class="arvore-luz" />
+                <circle cx="50" cy="98" r="3" fill="#ffeb3b" class="arvore-luz" />
+                <g transform="translate(80, 85) scale(0.6)">
+                  <circle cx="0" cy="20" r="10" fill="#fff" />
+                  <circle cx="0" cy="35" r="14" fill="#fff" />
+                  <circle cx="-3" cy="18" r="1.5" fill="#000" />
+                  <circle cx="3" cy="18" r="1.5" fill="#000" />
+                  <polygon points="0,20 8,22 0,24" fill="#ff9800" />
+                  <path d="M-8,26 C-4,30 4,30 8,26 L6,34 L-6,34 Z" fill="#d42b44" />
+                </g>
+              </svg>
+            </div>
+
+            <div class="natal-card">
+              <p class="natal-message" id="natal-message-text">Feliz Natal!</p>
+              <div class="natal-assinatura" id="natal-assinatura-text">Com carinho, Igor</div>
+              <button class="btn-compartilhar" onclick="compartilharSite(this)">
+                <span>Compartilhar</span>
+              </button>
+              <div class="toast-copy" id="compartilhar-toast">Link copiado! ❤️</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer do Wrapped (Pill Buttons) -->
+      <div class="wrapped-nav-footer">
+        <button class="btn-wrapped-nav btn-voltar" id="btn-wrapped-voltar-element" onclick="mudarSlideWrapped(-1)">Voltar</button>
+        <button class="btn-wrapped-nav btn-proximo" id="btn-wrapped-proximo-element" onclick="mudarSlideWrapped(1)">Próximo Passo</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Leaflet Map JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="https://www.youtube.com/iframe_api"></script>
+
+  <script>
+    /* ─────────────────────────────────────────────────────────────────────────
+       CONFIGURAÇÃO DEFAULT (Sobrescrita pelo editor.html se carregado em iframe)
+       ───────────────────────────────────────────────────────────────────────── */
+    let CONFIG = {
+      tituloCabecalho: "Nosso Presente",
+      nomes: { ele: "Igor", ela: "Mariana" },
+      dataInicio: "2025-06-05T12:00:00",
+      musicas: [
+        {
+          url: "https://www.youtube.com/watch?v=DominicFikeBabydoll",
+          titulo: "Dominic Fike - Babydoll (Lyrics)",
+          artista: "7clouds Rock",
+          capa: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&q=80"
+        }
+      ],
+      fotosSlide: [
+        "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600&q=80",
+        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600&q=80"
+      ],
+      fotoSobre: "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=600&q=80",
+      mensagem: "Tem dias que eu olho pra você e penso: como eu tive tanta sorte? Não é exagero. É só que, com você, tudo faz sentido. Até o caos do mundo parece mais leve quando estou do seu lado. Obrigado por existir e por ser tão você.",
+      conquistas: [
+        { icone: "🎉", titulo: "Primeiro Beijo", desc: "Aquele momento congelado no tempo que definiu nossa história." },
+        { icone: "♾️", titulo: "O 'Sim'", desc: "O início oficial de uma jornada linda de cumplicidade e sonhos." },
+        { icone: "🎂", titulo: "Aniversário", desc: "Celebrando ciclos de sorrisos compartilhados e carinho constante." },
+        { icone: "🎯", titulo: "Futuro Juntos", desc: "Todos os planos grandiosos que sonhamos em construir lado a lado." }
+      ],
+      roletaPergunta: "Para onde vamos sair hoje?",
+      roleta: ["Cinema", "Ficar em Casa (Netflix) 🍿", "Rodízio de Japa 🍣", "Piquenique", "Jantar Romântico", "Hamburgueria 🍔"],
+      timeline: [
+        { data: "Janeiro 2025", titulo: "O Primeiro Olhar", desc: "Tudo começou com uma conversa simples que se transformou em algo único.", foto: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=400&q=80", legenda: "O começo de tudo..." },
+        { data: "Abril 2025", titulo: "Pedido de Namoro", desc: "A decisão que marcou a nossa cumplicidade perpétua.", foto: "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=400&q=80", legenda: "SIM pro amor ❤️" }
+      ],
+      mapaEstrelas: {
+        local: "Praia do Rosa - SC, Brasil",
+        data: "05 de Junho de 2025 - 22:00",
+        coordenadas: "28.1301° S, 48.6421° W"
+      },
+      stories: [
+        { img: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=600&q=80", titulo: "Parceiros no Crime", desc: "Sempre rindo das piadas mais bobas no fim de semana." },
+        { img: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600&q=80", titulo: "Nosso Abraço", desc: "O melhor lugar do mundo é o seu abraço." }
+      ],
+      jogoPalavra: {
+        dica: "A palavra que resume tudo o que sinto por você:",
+        palavra: "AMOR",
+        msgFinal: "AMOR é o que rege cada segundo ao seu lado! ❤️"
+      },
+      jornadaMapa: [
+        { coords: [-28.1301, -48.6421], titulo: "Praia do Rosa", desc: "Nossa primeira viagem juntos à beira-mar.", foto: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=300&q=80", data: "05/06/2025" }
+      ],
+      natal: {
+        tag: "Seu Amor",
+        titulo: "EU TE AMO",
+        remetente: "Igor",
+        mensagem: "Que a magia do nosso amor continue brilhando neste e em todos os próximos Natais!"
+      }
+    };
+
+    /* ── AUDIO CONTROL STATE ── */
+    let audioPlayerType = null;
+    let ytPlayerInstance = null;
+    let directAudioInstance = null;
+    let indexMusicaAtual = 0;
+    let musicasEstado = {
+      tocando: false,
+      progresso: 0,
+      duracao: 0,
+      volume: 80,
+      loop: false,
+      shuffle: false
+    };
+    let updateProgressTimer = null;
+
+    function onYouTubeIframeAPIReady() {
+      // YouTube script loaded
+    }
+
+    function obterIDYoutube(url) {
+      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+      const match = url.match(regExp);
+      return (match && match[2].length === 11) ? match[2] : null;
+    }
+
+    function inicializarPlayer() {
+      pararMusicaTotal();
+
+      const musica = CONFIG.musicas[indexMusicaAtual];
+      if (!musica) return;
+
+      document.getElementById('p-titulo').textContent = musica.titulo;
+      document.getElementById('p-artista').textContent = musica.artista;
+      document.getElementById('carta-p-title').textContent = musica.titulo;
+      document.getElementById('carta-p-artist').textContent = musica.artista;
+
+      const ytId = obterIDYoutube(musica.url);
+
+      if (ytId) {
+        audioPlayerType = 'youtube';
+        let ytContainer = document.getElementById('yt-player-hidden-div');
+        if (!ytContainer) {
+          ytContainer = document.createElement('div');
+          ytContainer.id = 'yt-player-hidden-div';
+          ytContainer.style.cssText = 'position:absolute; width:1px; height:1px; opacity:0.01; pointer-events:none;';
+          document.body.appendChild(ytContainer);
+        }
+        ytContainer.innerHTML = '<div id="yt-player-inner"></div>';
+
+        ytPlayerInstance = new YT.Player('yt-player-inner', {
+          height: '1',
+          width: '1',
+          videoId: ytId,
+          playerVars: { 'autoplay': 0, 'controls': 0, 'disablekb': 1, 'fs': 0, 'rel': 0, 'enablejsapi': 1 },
+          events: {
+            'onReady': (event) => {
+              event.target.setVolume(musicasEstado.volume);
+              if (musicasEstado.tocando) {
+                event.target.playVideo();
+                iniciarProgressoTimer();
+              }
+            },
+            'onStateChange': (event) => {
+              if (event.data === 0) aoFinalizarMusica();
+            }
+          }
+        });
+      } else {
+        audioPlayerType = 'direct';
+        directAudioInstance = new Audio(musica.url);
+        directAudioInstance.volume = musicasEstado.volume / 100;
+        directAudioInstance.loop = musicasEstado.loop;
+        
+        directAudioInstance.addEventListener('ended', () => aoFinalizarMusica());
+        directAudioInstance.addEventListener('loadedmetadata', () => {
+          document.getElementById('p-tempo-total').textContent = formatarTempo(directAudioInstance.duration);
+        });
+
+        if (musicasEstado.tocando) {
+          directAudioInstance.play().catch(e => console.log(e));
+          iniciarProgressoTimer();
+        }
+      }
+    }
+
+    function pararMusicaTotal() {
+      pararProgressoTimer();
+      if (ytPlayerInstance && ytPlayerInstance.destroy) {
+        try { ytPlayerInstance.destroy(); } catch(e){}
+        ytPlayerInstance = null;
+      }
+      if (directAudioInstance) {
+        directAudioInstance.pause();
+        directAudioInstance = null;
+      }
+    }
+
+    function togglePlayPause() {
+      if (!audioPlayerType) {
+        musicasEstado.tocando = true;
+        inicializarPlayer();
+        setPlayPauseUI(true);
+        return;
+      }
+      musicasEstado.tocando = !musicasEstado.tocando;
+      setPlayPauseUI(musicasEstado.tocando);
+
+      if (musicasEstado.tocando) {
+        if (audioPlayerType === 'youtube' && ytPlayerInstance && ytPlayerInstance.playVideo) {
+          ytPlayerInstance.playVideo();
+        } else if (audioPlayerType === 'direct' && directAudioInstance) {
+          directAudioInstance.play().catch(e => console.log(e));
+        }
+        iniciarProgressoTimer();
+      } else {
+        if (audioPlayerType === 'youtube' && ytPlayerInstance && ytPlayerInstance.pauseVideo) {
+          ytPlayerInstance.pauseVideo();
+        } else if (audioPlayerType === 'direct' && directAudioInstance) {
+          directAudioInstance.pause();
+        }
+        pararProgressoTimer();
+      }
+    }
+
+    function setPlayPauseUI(isPlay) {
+      const playIcon = document.getElementById('play-icon-svg');
+      const pauseIcon = document.getElementById('pause-icon-svg');
+      const cPlayIcon = document.getElementById('carta-play-icon-svg');
+      const cPauseIcon = document.getElementById('carta-pause-icon-svg');
+
+      if (isPlay) {
+        playIcon.style.display = 'none';
+        pauseIcon.style.display = 'block';
+        cPlayIcon.style.display = 'none';
+        cPauseIcon.style.display = 'block';
+      } else {
+        playIcon.style.display = 'block';
+        pauseIcon.style.display = 'none';
+        cPlayIcon.style.display = 'block';
+        cPauseIcon.style.display = 'none';
+      }
+    }
+
+    function pularMusica(direcao) {
+      if (musicasEstado.shuffle) {
+        indexMusicaAtual = Math.floor(Math.random() * CONFIG.musicas.length);
+      } else {
+        indexMusicaAtual = (indexMusicaAtual + direcao + CONFIG.musicas.length) % CONFIG.musicas.length;
+      }
+      inicializarPlayer();
+    }
+
+    function aoFinalizarMusica() {
+      if (musicasEstado.loop) {
+        if (audioPlayerType === 'youtube' && ytPlayerInstance) {
+          ytPlayerInstance.seekTo(0);
+          ytPlayerInstance.playVideo();
+        } else if (audioPlayerType === 'direct' && directAudioInstance) {
+          directAudioInstance.currentTime = 0;
+          directAudioInstance.play();
+        }
+      } else {
+        pularMusica(1);
+      }
+    }
+
+    function iniciarProgressoTimer() {
+      pararProgressoTimer();
+      updateProgressTimer = setInterval(() => {
+        let atual = 0;
+        let total = 0;
+
+        if (audioPlayerType === 'youtube' && ytPlayerInstance && ytPlayerInstance.getCurrentTime) {
+          atual = ytPlayerInstance.getCurrentTime();
+          total = ytPlayerInstance.getDuration() || 0;
+        } else if (audioPlayerType === 'direct' && directAudioInstance) {
+          atual = directAudioInstance.currentTime;
+          total = directAudioInstance.duration || 0;
+        }
+
+        if (total > 0) {
+          const porcento = (atual / total) * 100;
+          document.getElementById('p-progresso').style.width = `${porcento}%`;
+          document.getElementById('carta-p-progresso').style.width = `${porcento}%`;
+          document.getElementById('p-tempo-atual').textContent = formatarTempo(atual);
+          document.getElementById('p-tempo-total').textContent = formatarTempo(total);
+        }
+      }, 500);
+    }
+
+    function pararProgressoTimer() {
+      if (updateProgressTimer) {
+        clearInterval(updateProgressTimer);
+        updateProgressTimer = null;
+      }
+    }
+
+    function formatarTempo(segundos) {
+      const min = Math.floor(segundos / 60);
+      const seg = Math.floor(segundos % 60);
+      return `${min}:${seg.toString().padStart(2, '0')}`;
+    }
+
+    function configurarSliderSeek(sliderId, progressoId) {
+      const slider = document.getElementById(sliderId);
+      slider.addEventListener('click', (e) => {
+        const rect = slider.getBoundingClientRect();
+        const pct = (e.clientX - rect.left) / rect.width;
+        
+        document.getElementById(progressoId).style.width = `${pct * 100}%`;
+
+        let dur = 0;
+        if (audioPlayerType === 'youtube' && ytPlayerInstance && ytPlayerInstance.getDuration) {
+          dur = ytPlayerInstance.getDuration();
+          ytPlayerInstance.seekTo(pct * dur, true);
+        } else if (audioPlayerType === 'direct' && directAudioInstance) {
+          dur = directAudioInstance.duration;
+          directAudioInstance.currentTime = pct * dur;
+        }
+      });
+    }
+
+
+    /* ── ABERTURA & DECORAÇÃO ── */
+    function abrirPresente() {
+      musicasEstado.tocando = true;
+      inicializarPlayer();
+      setPlayPauseUI(true);
+      document.getElementById('abertura').classList.add('saindo');
+      gerarParticulas();
+    }
+
+    function voltarHeaderAction() {
+      // Retorna para a tela de abertura
+      document.getElementById('abertura').classList.remove('saindo');
+      pararMusicaTotal();
+      musicasEstado.tocando = false;
+      setPlayPauseUI(false);
+    }
+
+    function abrirConfigMenu() {
+      alert(`Nossa Data: ${new Date(CONFIG.dataInicio).toLocaleDateString('pt-BR')}\nFeito com amor por ${CONFIG.nomes.ele}.`);
+    }
+
+    function gerarParticulas() {
+      const container = document.getElementById('particles-bg');
+      container.innerHTML = '';
+      for (let i = 0; i < 20; i++) {
+        const p = document.createElement('div');
+        p.className = 'particula-coracao';
+        p.innerHTML = '❤️';
+        p.style.left = `${Math.random() * 100}%`;
+        p.style.setProperty('--drift', `${-40 + Math.random() * 80}px`);
+        p.style.setProperty('--rotacao', `${-45 + Math.random() * 90}deg`);
+        p.style.animationDelay = `${Math.random() * 4}s`;
+        p.style.animationDuration = `${5 + Math.random() * 4}s`;
+        p.style.fontSize = `${10 + Math.random() * 12}px`;
+        container.appendChild(p);
+      }
+    }
+
+
+    /* ── CARROSSEL PRINCIPAL ── */
+    let slideCapaAtual = 0;
+    let carrosselInterval = null;
+
+    function iniciarCarrosselCapa() {
+      if (carrosselInterval) clearInterval(carrosselInterval);
+      const container = document.getElementById('capaCarrossel');
+      
+      // Remover slides antigos
+      const slidesAntigos = container.querySelectorAll('.capa-slide');
+      slidesAntigos.forEach(s => s.remove());
+      
+      CONFIG.fotosSlide.forEach((src, idx) => {
+        const div = document.createElement('div');
+        div.className = `capa-slide ${idx === 0 ? 'active' : ''}`;
+        div.style.backgroundImage = `url('${src}')`;
+        container.insertBefore(div, container.firstChild);
+      });
+
+      slideCapaAtual = 0;
+      if (CONFIG.fotosSlide.length > 1) {
+        carrosselInterval = setInterval(() => {
+          const slides = container.querySelectorAll('.capa-slide');
+          if (slides.length === 0) return;
+          slides[slideCapaAtual].classList.remove('active');
+          slideCapaAtual = (slideCapaAtual + 1) % slides.length;
+          slides[slideCapaAtual].classList.add('active');
+        }, 4000);
+      }
+    }
+
+
+    /* ── CONTADOR DE DIAS ── */
+    let contadorTimer = null;
+    function atualizarContador() {
+      if (contadorTimer) clearInterval(contadorTimer);
+      const dataInicio = new Date(CONFIG.dataInicio);
+      
+      function calcular() {
+        const agora = new Date();
+        let anos = agora.getFullYear() - dataInicio.getFullYear();
+        let meses = agora.getMonth() - dataInicio.getMonth();
+        let dias = agora.getDate() - dataInicio.getDate();
+        
+        if (dias < 0) {
+          meses--;
+          const ultDiaMes = new Date(agora.getFullYear(), agora.getMonth(), 0).getDate();
+          dias += ultDiaMes;
+        }
+        if (meses < 0) {
+          anos--;
+          meses += 12;
+        }
+
+        let horas = agora.getHours() - dataInicio.getHours();
+        let minutos = agora.getMinutes() - dataInicio.getMinutes();
+        let segundos = agora.getSeconds() - dataInicio.getSeconds();
+
+        if (segundos < 0) { minutos--; segundos += 60; }
+        if (minutos < 0) { horas--; minutos += 60; }
+        if (horas < 0) { dias--; horas += 24; }
+
+        document.getElementById('cnt-anos').textContent = anos;
+        document.getElementById('cnt-meses').textContent = meses;
+        document.getElementById('cnt-dias').textContent = dias;
+        document.getElementById('cnt-horas').textContent = String(horas).padStart(2, '0');
+        document.getElementById('cnt-minutos').textContent = String(minutos).padStart(2, '0');
+        document.getElementById('cnt-segundos').textContent = String(segundos).padStart(2, '0');
+      }
+
+      calcular();
+      contadorTimer = setInterval(calcular, 1000);
+    }
+
+
+    /* ── CARTA ESPECIAL ── */
+    function toggleCarta(abrir) {
+      const overlay = document.getElementById('carta-aberta-overlay');
+      overlay.style.display = abrir ? 'flex' : 'none';
+      if (abrir) overlay.scrollTop = 0;
+    }
+
+
+    /* ── CONQUISTAS ── */
+    let conquistasDesbloqueadas = [false, false, false, false];
+
+    function inicializarConquistas() {
+      const grid = document.getElementById('conquistas-grid-container');
+      grid.innerHTML = '';
+
+      CONFIG.conquistas.forEach((c, idx) => {
+        const item = document.createElement('div');
+        item.className = 'conquista-item';
+        item.id = `conq-${idx}`;
+        item.innerHTML = '🔒';
+        item.onclick = () => clicarConquista(idx);
+        grid.appendChild(item);
+      });
+      atualizarProgressoConquistas();
+    }
+
+    function clicarConquista(idx) {
+      conquistasDesbloqueadas[idx] = true;
+      const item = document.getElementById(`conq-${idx}`);
+      item.innerHTML = CONFIG.conquistas[idx].icone;
+      item.style.borderColor = 'var(--rosa)';
+      
+      dispararConfetes();
+      abrirModalConquista(idx);
+      atualizarProgressoConquistas();
+    }
+
+    function abrirModalConquista(idx) {
+      const modal = document.createElement('div');
+      modal.className = 'conquista-modal';
+      modal.style.display = 'flex';
+      
+      const c = CONFIG.conquistas[idx];
+      modal.innerHTML = `
+        <div class="conquista-modal-content">
+          <div class="conquista-modal-icone">${c.icone}</div>
+          <h3 class="conquista-modal-titulo">${c.titulo}</h3>
+          <p class="conquista-modal-desc">${c.desc}</p>
+          <button class="conquista-modal-fechar" onclick="this.closest('.conquista-modal').remove()">Fechar Conquista</button>
+        </div>
+      `;
+      document.getElementById('app-container-phone').appendChild(modal);
+    }
+
+    function atualizarProgressoConquistas() {
+      const count = conquistasDesbloqueadas.filter(Boolean).length;
+      document.getElementById('conquistas-count-text').textContent = `${count}/${CONFIG.conquistas.length}`;
+    }
+
+
+    /* ── CANVAS RIBBON DECORATION ── */
+    function desenharFaixasFluida() {
+      const canvas = document.getElementById('ribbonCanvas');
+      const ctx = canvas.getContext('2d');
+      let largura, altura;
+
+      function redimensionar() {
+        largura = canvas.width = canvas.parentElement.offsetWidth || 358;
+        altura = canvas.height = canvas.parentElement.offsetHeight || 188;
+      }
+      redimensionar();
+
+      let t = 0;
+      function animar() {
+        if (document.getElementById('wrapped-page').style.display === 'flex') {
+          requestAnimationFrame(animar);
+          return;
+        }
+        ctx.clearRect(0, 0, largura, altura);
+        
+        ctx.beginPath();
+        ctx.strokeStyle = 'rgba(232, 87, 106, 0.18)';
+        ctx.lineWidth = 12;
+        for (let x = 0; x < largura; x++) {
+          const y = altura/2 + Math.sin(x * 0.01 + t) * 16 + Math.cos(x * 0.005 + t) * 8;
+          if (x === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.strokeStyle = 'rgba(212, 43, 68, 0.1)';
+        ctx.lineWidth = 6;
+        for (let x = 0; x < largura; x++) {
+          const y = altura/2 + Math.sin(x * 0.015 - t) * 20 + Math.cos(x * 0.008 - t) * 10;
+          if (x === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        t += 0.01;
+        requestAnimationFrame(animar);
+      }
+      animar();
+    }
+
+
+    /* ── WRAPPED SLIDES SLIDESHOW CONTROL ── */
+    const IDsSlidesWrapped = [
+      'slide-roleta',
+      'slide-timeline',
+      'slide-estrelas',
+      'slide-stories',
+      'slide-wordle',
+      'slide-mapa',
+      'slide-natal'
+    ];
+    let indexSlideAtual = 0;
+    let timerAutoStories = null;
+
+    function toggleWrapped(abrir) {
+      const pagWrapped = document.getElementById('wrapped-page');
+      if (abrir) {
+        pagWrapped.style.display = 'flex';
+        inicializarSlideWrapped(0);
+      } else {
+        pagWrapped.style.display = 'none';
+        pararAutoStories();
+        pararNeve();
+      }
+    }
+
+    function inicializarSlideWrapped(idx) {
+      const slideAnt = document.querySelector('.wrapped-slide.active');
+      if (slideAnt) slideAnt.classList.remove('active');
+
+      indexSlideAtual = idx;
+      const idSlide = IDsSlidesWrapped[idx];
+      const elemSlide = document.getElementById(idSlide);
+      elemSlide.classList.add('active');
+
+      atualizarProgressoWrapped();
+
+      const titulosCategorias = [
+        "Roleta do Casal",
+        "Nossa Jornada",
+        "Céu do Dia",
+        "Momentos Especiais",
+        "Jogo da Palavra",
+        "Nossa Jornada no Mapa",
+        "Nosso Natal"
+      ];
+      document.getElementById('wrapped-slide-category-title').textContent = titulosCategorias[idx];
+      document.getElementById('btn-wrapped-voltar-element').disabled = (idx === 0);
+      
+      const btnProximo = document.getElementById('btn-wrapped-proximo-element');
+      btnProximo.textContent = (idx === IDsSlidesWrapped.length - 1) ? "Concluir" : "Próximo Passo";
+
+      // Stop previous loops
+      pararAutoStories();
+      pararNeve();
+
+      // Inits
+      if (idSlide === 'slide-timeline') montarTimelineSlides();
+      else if (idSlide === 'slide-estrelas') desenharMapaEstrelas();
+      else if (idSlide === 'slide-stories') montarStoriesSlide();
+      else if (idSlide === 'slide-wordle') inicializarWordle();
+      else if (idSlide === 'slide-mapa') {
+        inicializarMapaJornada();
+        setTimeout(() => { if (mapaLeafletInstance) mapaLeafletInstance.invalidateSize(); }, 150);
+      }
+      else if (idSlide === 'slide-natal') inicializarNeveNatal();
+    }
+
+    function mudarSlideWrapped(dir) {
+      let proximoIdx = indexSlideAtual + dir;
+      if (proximoIdx >= IDsSlidesWrapped.length) {
+        toggleWrapped(false);
+        return;
+      }
+      if (proximoIdx >= 0) {
+        inicializarSlideWrapped(proximoIdx);
+      }
+    }
+
+    function atualizarProgressoWrapped() {
+      const container = document.getElementById('wrapped-tracks-container');
+      container.innerHTML = '';
+      IDsSlidesWrapped.forEach((id, idx) => {
+        const track = document.createElement('div');
+        track.className = 'wrapped-progress-track';
+        if (idx < indexSlideAtual) track.classList.add('visto');
+        const fill = document.createElement('div');
+        fill.className = 'wrapped-progress-fill';
+        if (idx === indexSlideAtual) fill.style.width = '100%';
+        track.appendChild(fill);
+        container.appendChild(track);
+      });
+    }
+
+
+    /* ── WRAPPED SLIDES: SLIDE 1 (ROLETA) ── */
+    let roletaRotacao = 0;
+    let roletaGirando = false;
+
+    function desenharRoleta() {
+      const canvas = document.getElementById('roletaCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const count = CONFIG.roleta.length;
+      const arco = (2 * Math.PI) / count;
+      const centro = canvas.width / 2;
+      const raio = centro - 15;
+
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      CONFIG.roleta.forEach((op, idx) => {
+        const angulo = roletaRotacao + idx * arco;
+        ctx.beginPath();
+        ctx.fillStyle = idx % 2 === 0 ? '#4338ca' : '#3b82f6'; // Azul e azul escuro das referências
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2;
+        ctx.moveTo(centro, centro);
+        ctx.arc(centro, centro, raio, angulo, angulo + arco);
+        ctx.lineTo(centro, centro);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.save();
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 15px Jost, sans-serif';
+        ctx.translate(centro, centro);
+        ctx.rotate(angulo + arco / 2);
+        ctx.textAlign = 'right';
+        ctx.fillText(op.substring(0, 16), raio - 25, 5);
+        ctx.restore();
+      });
+    }
+
+    function girarRoleta() {
+      if (roletaGirando) return;
+      roletaGirando = true;
+      document.getElementById('roleta-resultado-text').style.display = 'none';
+
+      const girosExtra = 6 + Math.random() * 4;
+      const duracao = 3500;
+      const inicioTime = performance.now();
+      const startRot = roletaRotacao;
+      const targetRot = startRot + girosExtra * 2 * Math.PI;
+
+      function rodar(now) {
+        const decorrido = now - inicioTime;
+        const t = Math.min(decorrido / duracao, 1);
+        const easeOut = 1 - Math.pow(1 - t, 3);
+        
+        roletaRotacao = startRot + (targetRot - startRot) * easeOut;
+        desenharRoleta();
+
+        if (t < 1) {
+          requestAnimationFrame(rodar);
+        } else {
+          roletaGirando = false;
+          const count = CONFIG.roleta.length;
+          const arco = (2 * Math.PI) / count;
+          const anguloFinal = roletaRotacao % (2 * Math.PI);
+          const anguloSeta = 3 * Math.PI / 2;
+          let idxVencedor = Math.floor((anguloSeta - anguloFinal) / arco) % count;
+          if (idxVencedor < 0) idxVencedor += count;
+          
+          const vencedor = CONFIG.roleta[idxVencedor];
+          const resultBox = document.getElementById('roleta-resultado-text');
+          resultBox.textContent = `${vencedor} 🌟`;
+          resultBox.style.display = 'block';
+          dispararConfetes();
+        }
+      }
+      requestAnimationFrame(rodar);
+    }
+
+
+    /* ── WRAPPED SLIDES: SLIDE 2 (TIMELINE ALTERNADA) ── */
+    function montarTimelineSlides() {
+      const container = document.getElementById('timeline-slides-container');
+      container.innerHTML = '<div class="timeline-linha-central"></div>';
+
+      CONFIG.timeline.forEach((item, idx) => {
+        const tlItem = document.createElement('div');
+        const isLeft = idx % 2 === 0;
+        tlItem.className = `tl-slide-item ${isLeft ? 'tl-left' : 'tl-right'}`;
+        const rot = -4 + Math.random() * 8;
+
+        const polaroidHtml = `
+          <div class="tl-slide-col tl-polaroid-side">
+            <div class="tl-polaroid" style="--rot: ${rot}deg;">
+              <div class="tl-polaroid-foto" style="background-image: url('${item.foto}');"></div>
+              <p class="tl-polaroid-legenda">${item.legenda}</p>
+            </div>
+          </div>
+        `;
+        const infoHtml = `
+          <div class="tl-slide-col tl-slide-info">
+            <p class="tl-slide-data">${item.data}</p>
+            <h3 class="tl-slide-titulo">${item.titulo}</h3>
+            <p class="tl-slide-desc">${item.desc}</p>
+          </div>
+        `;
+
+        tlItem.innerHTML = `
+          <div class="tl-slide-heart-dot">❤️</div>
+          ${isLeft ? polaroidHtml + infoHtml : infoHtml + polaroidHtml}
+        `;
+        container.appendChild(tlItem);
+      });
+
+      const enc = document.createElement('div');
+      enc.className = 'tl-slide-encerramento';
+      enc.textContent = 'E estamos apenas começando! ❤️';
+      container.appendChild(enc);
+    }
+
+
+    /* ── WRAPPED SLIDES: SLIDE 3 (ESTRELAS CONSTELLATION) ── */
+    function desenharMapaEstrelas() {
+      const svg = document.getElementById('estrelasSvg');
+      svg.innerHTML = '';
+
+      document.getElementById('estrelas-local-text').textContent = CONFIG.mapaEstrelas.local;
+      document.getElementById('estrelas-data-text').textContent = CONFIG.mapaEstrelas.data;
+      document.getElementById('estrelas-coords-text').textContent = CONFIG.mapaEstrelas.coordenadas;
+
+      // Estrelas Fundo
+      for (let i = 0; i < 50; i++) {
+        const cx = Math.random() * 200;
+        const cy = Math.random() * 200;
+        const r = 0.5 + Math.random() * 1;
+        const opacity = 0.2 + Math.random() * 0.8;
+        
+        const star = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        star.setAttribute('cx', cx);
+        star.setAttribute('cy', cy);
+        star.setAttribute('r', r);
+        star.setAttribute('fill', '#fff');
+        star.setAttribute('opacity', opacity);
+        svg.appendChild(star);
+      }
+
+      // Coração Constelação
+      const pts = [
+        [100, 55], [125, 38], [150, 55], [155, 80], 
+        [100, 140], [45, 80], [50, 55], [75, 38], [100, 55]
+      ];
+      let d = `M ${pts[0][0]} ${pts[0][1]} `;
+      for(let i=1; i<pts.length; i++) d += `L ${pts[i][0]} ${pts[i][1]} `;
+
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', d);
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke', 'rgba(232, 87, 106, 0.75)');
+      path.setAttribute('stroke-width', '1.5');
+      path.setAttribute('stroke-dasharray', '500');
+      path.setAttribute('stroke-dashoffset', '500');
+      
+      const animPath = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
+      animPath.setAttribute('attributeName', 'stroke-dashoffset');
+      animPath.setAttribute('from', '500');
+      animPath.setAttribute('to', '0');
+      animPath.setAttribute('dur', '2.5s');
+      animPath.setAttribute('fill', 'freeze');
+      path.appendChild(animPath);
+      svg.appendChild(path);
+
+      pts.forEach(([x, y]) => {
+        const pt = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        pt.setAttribute('cx', x);
+        pt.setAttribute('cy', y);
+        pt.setAttribute('r', '2.5');
+        pt.setAttribute('fill', '#ffd700');
+        svg.appendChild(pt);
+      });
+    }
+
+
+    /* ── WRAPPED SLIDES: SLIDE 4 (STORIES) ── */
+    let storyAtual = 0;
+    const tempoStory = 5000;
+    let tempoInicialStory = 0;
+    let animacaoFrameStory = null;
+
+    function montarStoriesSlide() {
+      const barContainer = document.getElementById('story-progress-indicators-bar');
+      const slidesHolder = document.getElementById('story-slides-holder');
+
+      barContainer.innerHTML = '';
+      slidesHolder.innerHTML = '';
+
+      CONFIG.stories.forEach((st, idx) => {
+        const track = document.createElement('div');
+        track.className = 'story-progress-bar';
+        track.id = `story-track-${idx}`;
+        const fill = document.createElement('div');
+        fill.className = 'story-progress-fill-node';
+        fill.id = `story-fill-${idx}`;
+        track.appendChild(fill);
+        barContainer.appendChild(track);
+
+        const slide = document.createElement('div');
+        slide.className = `story-slide-item ${idx === 0 ? 'active' : ''}`;
+        slide.style.backgroundImage = `url('${st.img}')`;
+        slide.innerHTML = `
+          <div class="story-overlay-shade"></div>
+          <div class="story-content-box">
+            <h3 class="story-title">${st.titulo}</h3>
+            <p class="story-desc">${st.desc}</p>
+          </div>
+        `;
+        slidesHolder.appendChild(slide);
+      });
+
+      storyAtual = 0;
+      iniciarStoryTimer();
+    }
+
+    function iniciarStoryTimer() {
+      pararAutoStories();
+      tempoInicialStory = performance.now();
+      animarStoryBar();
+    }
+
+    function animarStoryBar() {
+      const agora = performance.now();
+      const decorrido = agora - tempoInicialStory;
+      const pct = Math.min(decorrido / tempoStory, 1);
+
+      const fillBar = document.getElementById(`story-fill-${storyAtual}`);
+      if (fillBar) fillBar.style.width = `${pct * 100}%`;
+
+      if (pct < 1) {
+        animacaoFrameStory = requestAnimationFrame(animarStoryBar);
+      } else {
+        if (storyAtual < CONFIG.stories.length - 1) {
+          navStory(1);
+        } else {
+          pararAutoStories();
+        }
+      }
+    }
+
+    function navStory(dir) {
+      pararAutoStories();
+      const fills = document.querySelectorAll('.story-progress-fill-node');
+      fills.forEach((fill, idx) => {
+        fill.style.width = (idx < storyAtual + dir) ? '100%' : '0%';
+      });
+
+      const slides = document.querySelectorAll('.story-slide-item');
+      if (slides[storyAtual]) slides[storyAtual].classList.remove('active');
+      storyAtual = (storyAtual + dir + CONFIG.stories.length) % CONFIG.stories.length;
+      if (slides[storyAtual]) slides[storyAtual].classList.add('active');
+
+      iniciarStoryTimer();
+    }
+
+    function pararAutoStories() {
+      if (animacaoFrameStory) {
+        cancelAnimationFrame(animacaoFrameStory);
+        animacaoFrameStory = null;
+      }
+    }
+
+
+    /* ── WRAPPED SLIDES: SLIDE 5 (WORDLE) ── */
+    let wordleRowAtual = 0;
+    let wordleColAtual = 0;
+    let wordleTentativas = [];
+    let wordleResolvido = false;
+
+    function inicializarWordle() {
+      wordleRowAtual = 0;
+      wordleColAtual = 0;
+      wordleTentativas = ["", "", "", "", "", ""];
+      wordleResolvido = false;
+
+      document.getElementById('wordle-clue-text').textContent = CONFIG.jogoPalavra.dica;
+
+      const board = document.getElementById('wordle-grid-board');
+      board.innerHTML = '';
+      const tam = CONFIG.jogoPalavra.palavra.length;
+
+      for (let r = 0; r < 6; r++) {
+        const row = document.createElement('div');
+        row.className = 'wordle-row';
+        row.id = `w-row-${r}`;
+        for (let c = 0; c < tam; c++) {
+          const cell = document.createElement('div');
+          cell.className = 'wordle-cell';
+          cell.id = `w-cell-${r}-${c}`;
+          row.appendChild(cell);
+        }
+        board.appendChild(row);
+      }
+
+      const teclado = document.getElementById('wordle-keyboard-elem');
+      teclado.innerHTML = '';
+      const keys = [
+        ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
+        ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
+        ["ENTER", "Z", "X", "C", "V", "B", "N", "M", "APAGAR"]
+      ];
+
+      keys.forEach(linha => {
+        const row = document.createElement('div');
+        row.className = 'keyboard-row';
+        linha.forEach(key => {
+          const btn = document.createElement('button');
+          btn.className = 'key-btn';
+          if (key === "ENTER" || key === "APAGAR") btn.classList.add('wide');
+          btn.textContent = key;
+          btn.id = `key-${key}`;
+          btn.onclick = () => processarEntradaTeclado(key);
+          row.appendChild(btn);
+        });
+        teclado.appendChild(row);
+      });
+    }
+
+    function processarEntradaTeclado(key) {
+      if (wordleResolvido) return;
+      const palavra = CONFIG.jogoPalavra.palavra.toUpperCase();
+      const tam = palavra.length;
+
+      if (key === "ENTER") {
+        if (wordleColAtual < tam) {
+          const row = document.getElementById(`w-row-${wordleRowAtual}`);
+          row.classList.add('shake');
+          setTimeout(() => row.classList.remove('shake'), 200);
+          return;
+        }
+        verificarPalavraWordle();
+      } else if (key === "APAGAR" || key === "BACKSPACE") {
+        if (wordleColAtual > 0) {
+          wordleColAtual--;
+          document.getElementById(`w-cell-${wordleRowAtual}-${wordleColAtual}`).textContent = '';
+          wordleTentativas[wordleRowAtual] = wordleTentativas[wordleRowAtual].slice(0, -1);
+        }
+      } else if (/^[a-zA-Z]$/.test(key)) {
+        if (wordleColAtual < tam) {
+          document.getElementById(`w-cell-${wordleRowAtual}-${wordleColAtual}`).textContent = key.toUpperCase();
+          wordleTentativas[wordleRowAtual] += key.toUpperCase();
+          wordleColAtual++;
+        }
+      }
+    }
+
+    function verificarPalavraWordle() {
+      const palavra = CONFIG.jogoPalavra.palavra.toUpperCase();
+      const tentativa = wordleTentativas[wordleRowAtual];
+      const tam = palavra.length;
+
+      let corretas = Array(tam).fill(false);
+      let usadas = Array(tam).fill(false);
+
+      for (let i = 0; i < tam; i++) {
+        if (tentativa[i] === palavra[i]) {
+          document.getElementById(`w-cell-${wordleRowAtual}-${i}`).classList.add('correct');
+          colorirTeclado(tentativa[i], 'correct');
+          corretas[i] = true;
+          usadas[i] = true;
+        }
+      }
+
+      for (let i = 0; i < tam; i++) {
+        if (corretas[i]) continue;
+        let classe = 'absent';
+        for (let j = 0; j < tam; j++) {
+          if (!usadas[j] && tentativa[i] === palavra[j]) {
+            classe = 'present';
+            usadas[j] = true;
+            break;
+          }
+        }
+        document.getElementById(`w-cell-${wordleRowAtual}-${i}`).classList.add(classe);
+        colorirTeclado(tentativa[i], classe);
+      }
+
+      if (tentativa === palavra) {
+        wordleResolvido = true;
+        document.getElementById('wordle-clue-text').innerHTML = `<strong>Acertou!</strong><br>${CONFIG.jogoPalavra.msgFinal}`;
+        dispararConfetes();
+        return;
+      }
+
+      wordleRowAtual++;
+      wordleColAtual = 0;
+
+      if (wordleRowAtual >= 6) {
+        document.getElementById('wordle-clue-text').innerHTML = `Errou! Era <strong>${palavra}</strong>. Clique para reiniciar!`;
+        document.getElementById('wordle-clue-text').style.cursor = 'pointer';
+        document.getElementById('wordle-clue-text').onclick = () => {
+          inicializarWordle();
+          document.getElementById('wordle-clue-text').onclick = null;
+        };
+      }
+    }
+
+    function colorirTeclado(letra, classe) {
+      const btn = document.getElementById(`key-${letra}`);
+      if (!btn) return;
+      if (btn.classList.contains('correct')) return;
+      if (btn.classList.contains('present') && classe !== 'correct') return;
+      btn.classList.remove('correct', 'present', 'absent');
+      btn.classList.add(classe);
+    }
+
+    document.addEventListener('keydown', (e) => {
+      const slide = document.getElementById('slide-wordle');
+      if (slide && slide.classList.contains('active')) {
+        let key = e.key.toUpperCase();
+        if (key === "ENTER" || key === "BACKSPACE" || /^[A-Z]$/.test(key)) {
+          processarEntradaTeclado(key);
+        }
+      }
+    });
+
+
+    /* ── WRAPPED SLIDES: SLIDE 6 (MAPA) ── */
+    let mapaLeafletInstance = null;
+
+    function inicializarMapaJornada() {
+      if (mapaLeafletInstance) return;
+      const coordInic = CONFIG.jornadaMapa[0] ? CONFIG.jornadaMapa[0].coords : [0,0];
+      
+      mapaLeafletInstance = L.map('wrapped-map', { zoomControl: false, attributionControl: false }).setView(coordInic, 4);
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 18 }).addTo(mapaLeafletInstance);
+
+      const heart = L.divIcon({
+        html: `<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`,
+        className: 'custom-leaflet-heart',
+        iconSize: [26, 26],
+        iconAnchor: [13, 26],
+        popupAnchor: [0, -26]
+      });
+
+      CONFIG.jornadaMapa.forEach(p => {
+        const popup = `
+          <div class="map-popup-polaroid">
+            <div class="map-popup-foto" style="background-image:url('${p.foto}')"></div>
+            <p class="map-popup-titulo">${p.titulo}</p>
+            <p class="map-popup-data">${p.data}</p>
+          </div>
+        `;
+        L.marker(p.coords, { icon: heart }).addTo(mapaLeafletInstance).bindPopup(popup);
+      });
+    }
+
+    function destruirMapaJornada() {
+      if (mapaLeafletInstance) {
+        mapaLeafletInstance.remove();
+        mapaLeafletInstance = null;
+      }
+    }
+
+
+    /* ── WRAPPED SLIDES: SLIDE 7 (NATAL) ── */
+    let canvasNatalNeve = null;
+    let ctxNatalNeve = null;
+    let flocosNeve = [];
+    let animacaoNeveFrame = null;
+
+    function inicializarNeveNatal() {
+      canvasNatalNeve = document.getElementById('natalSnowCanvas');
+      ctxNatalNeve = canvasNatalNeve.getContext('2d');
+      
+      // Use the slide element itself for full coverage
+      const slideEl = document.getElementById('slide-natal');
+      canvasNatalNeve.width = slideEl.offsetWidth || 358;
+      canvasNatalNeve.height = slideEl.offsetHeight || 700;
+
+      document.getElementById('natal-tag-custom').textContent = CONFIG.natal.tag;
+      document.getElementById('natal-title-custom').textContent = CONFIG.natal.titulo;
+      document.getElementById('natal-message-text').textContent = CONFIG.natal.mensagem;
+      document.getElementById('natal-assinatura-text').textContent = `Com carinho, ${CONFIG.natal.remetente}`;
+
+      flocosNeve = [];
+      for (let i = 0; i < 50; i++) {
+        flocosNeve.push({
+          x: Math.random() * canvasNatalNeve.width,
+          y: Math.random() * canvasNatalNeve.height,
+          r: 1 + Math.random() * 2.5,
+          d: 0.3 + Math.random() * 0.8,
+          drift: -0.3 + Math.random() * 0.6
+        });
+      }
+
+      const luzes = document.querySelectorAll('.arvore-luz');
+      luzes.forEach((l, idx) => {
+        l.style.animation = `pulsarCoracao ${0.8 + Math.random() * 0.8}s infinite`;
+        l.style.animationDelay = `${idx * 0.1}s`;
+      });
+
+      animarNeve();
+    }
+
+    function animarNeve() {
+      ctxNatalNeve.clearRect(0,0,canvasNatalNeve.width,canvasNatalNeve.height);
+      ctxNatalNeve.fillStyle = '#fff';
+      ctxNatalNeve.beginPath();
+
+      flocosNeve.forEach(f => {
+        ctxNatalNeve.moveTo(f.x, f.y);
+        ctxNatalNeve.arc(f.x, f.y, f.r, 0, Math.PI * 2, true);
+        f.y += f.d;
+        f.x += f.drift;
+        if (f.y > canvasNatalNeve.height) {
+          f.y = -10;
+          f.x = Math.random() * canvasNatalNeve.width;
+        }
+      });
+      ctxNatalNeve.fill();
+      animacaoNeveFrame = requestAnimationFrame(animarNeve);
+    }
+
+    function pararNeve() {
+      if (animacaoNeveFrame) {
+        cancelAnimationFrame(animacaoNeveFrame);
+        animacaoNeveFrame = null;
+      }
+    }
+
+
+    /* ── COMPARTILHAMENTO ── */
+    function compartilharSite(btn) {
+      const url = window.location.href;
+      if (navigator.share) {
+        navigator.share({ title: 'Nosso Presente ❤️', text: 'Veja o presente especial que te fiz!', url: url }).catch(console.error);
+      } else {
+        navigator.clipboard.writeText(url).then(() => {
+          const t = document.getElementById('compartilhar-toast');
+          t.style.display = 'block';
+          setTimeout(() => t.style.display = 'none', 2500);
+        }).catch(err => console.log(err));
+      }
+    }
+
+
+    /* ── CONFETES ── */
+    let confettiActive = false;
+    let confettiArray = [];
+    let confettiFrame = null;
+
+    function dispararConfetes() {
+      const canvas = document.getElementById('confetti-canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.style.display = 'block';
+      canvas.width = canvas.parentElement.offsetWidth || 390;
+      canvas.height = canvas.parentElement.offsetHeight || 844;
+
+      confettiArray = [];
+      const cores = ['#e8576a', '#ff758c', '#d42b44', '#a044ff', '#ffdf00', '#2575fc'];
+
+      for (let i = 0; i < 60; i++) {
+        confettiArray.push({
+          x: Math.random() * canvas.width,
+          y: -20 - Math.random() * 40,
+          r: 4 + Math.random() * 7,
+          d: 2.5 + Math.random() * 3,
+          cor: cores[Math.floor(Math.random() * cores.length)],
+          tilt: Math.random() * 10 - 5,
+          tiltAngleIncremental: Math.random() * 0.05 + 0.02,
+          tiltAngle: 0
+        });
+      }
+
+      confettiActive = true;
+      animarConfetes(canvas, ctx);
+
+      setTimeout(() => {
+        confettiActive = false;
+        cancelAnimationFrame(confettiFrame);
+        canvas.style.display = 'none';
+      }, 3500);
+    }
+
+    function animarConfetes(canvas, ctx) {
+      if (!confettiActive) return;
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+
+      confettiArray.forEach(c => {
+        c.tiltAngle += c.tiltAngleIncremental;
+        c.y += c.d;
+        c.tilt = Math.sin(c.tiltAngle) * 10;
+
+        ctx.beginPath();
+        ctx.lineWidth = c.r;
+        ctx.strokeStyle = c.cor;
+        ctx.moveTo(c.x + c.tilt + c.r/2, c.y);
+        ctx.lineTo(c.x + c.tilt, c.y + c.tilt + c.r/2);
+        ctx.stroke();
+
+        if (c.y > canvas.height) {
+          c.y = -20;
+          c.x = Math.random() * canvas.width;
+        }
+      });
+      confettiFrame = requestAnimationFrame(() => animarConfetes(canvas, ctx));
+    }
+
+
+    /* ── SINCRONIZAÇÃO EM TEMPO REAL COM O CRIADOR.HTML (POSTMESSAGE) ── */
+    window.addEventListener('message', (event) => {
+      if (event.data && event.data.type === 'UPDATE_CONFIG') {
+        CONFIG = event.data.config;
+        atualizarInterfaceDinamica();
+      }
+      if (event.data && event.data.type === 'JUMP_TO_SLIDE') {
+        toggleWrapped(true);
+        inicializarSlideWrapped(event.data.slideIndex);
+      }
+      if (event.data && event.data.type === 'CLOSE_PREVIEW') {
+        toggleWrapped(false);
+      }
+    });
+
+    function atualizarInterfaceDinamica() {
+      // 1. Título do Cabeçalho e nomes
+      document.getElementById('app-header-title').textContent = CONFIG.tituloCabecalho;
+      document.getElementById('abertura-titulo-text').textContent = `Para você, ${CONFIG.nomes.ela}`;
+      document.getElementById('sobre-nomes-text').innerHTML = `${CONFIG.nomes.ele} <span>❤️</span> ${CONFIG.nomes.ela}`;
+      document.getElementById('sobre-data-inicio-label').textContent = `Juntos desde ${new Date(CONFIG.dataInicio).getFullYear()}`;
+      
+      // 2. Carta
+      document.getElementById('mensagem-card-preview-text').textContent = CONFIG.mensagem;
+      document.getElementById('carta-completa-texto').textContent = CONFIG.mensagem;
+      document.getElementById('carta-completa-assinatura').textContent = `Com amor, ${CONFIG.nomes.ele} ❤️`;
+
+      // 3. Foto Sobre o Casal
+      if (CONFIG.fotoSobre) {
+        document.getElementById('sobre-foto-avatar').style.backgroundImage = `url('${CONFIG.fotoSobre}')`;
+      }
+
+      // 4. Módulos re-inicializáveis
+      iniciarCarrosselCapa();
+      atualizarContador();
+      inicializarConquistas();
+      desenharRoleta();
+      
+      // Destruir mapa anterior se houver para não gerar duplicações
+      destruirMapaJornada();
+
+      // Recarregar áudio se URL mudou
+      inicializarPlayer();
+    }
+
+
+    /* ── INITIALIZATION ── */
+    window.addEventListener('DOMContentLoaded', () => {
+      atualizarInterfaceDinamica();
+
+      // Configurar Volume
+      const volSlider = document.getElementById('p-volume');
+      volSlider.addEventListener('input', (e) => {
+        const v = parseInt(e.target.value);
+        musicasEstado.volume = v;
+        if (audioPlayerType === 'youtube' && ytPlayerInstance && ytPlayerInstance.setVolume) {
+          ytPlayerInstance.setVolume(v);
+        } else if (audioPlayerType === 'direct' && directAudioInstance) {
+          directAudioInstance.volume = v / 100;
+        }
+      });
+
+      // Configurar Volume do mini-player
+      document.getElementById('btn-play-action').addEventListener('click', togglePlayPause);
+
+      // Seek
+      configurarSliderSeek('p-slider', 'p-progresso');
+      configurarSliderSeek('carta-p-slider', 'carta-p-progresso');
+
+      // Loop / Repeat
+      const repBtn = document.getElementById('p-repeat');
+      repBtn.addEventListener('click', () => {
+        musicasEstado.loop = !musicasEstado.loop;
+        repBtn.classList.toggle('ativo', musicasEstado.loop);
+        if (audioPlayerType === 'direct' && directAudioInstance) {
+          directAudioInstance.loop = musicasEstado.loop;
+        }
+      });
+
+      // Shuffle
+      const shufBtn = document.getElementById('p-shuffle');
+      shufBtn.addEventListener('click', () => {
+        musicasEstado.shuffle = !musicasEstado.shuffle;
+        shufBtn.classList.toggle('ativo', musicasEstado.shuffle);
+      });
+
+      desenharFaixasFluida();
+
+      // IntersectionObserver para animações de scroll
+      const observerOpts = { root: document.getElementById('main-viewport-element'), threshold: 0.15 };
+      const scrollObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animated');
+          }
+        });
+      }, observerOpts);
+      document.querySelectorAll('.animate-on-scroll').forEach(el => scrollObserver.observe(el));
+    });
+  </script>
+</body>
+</html>

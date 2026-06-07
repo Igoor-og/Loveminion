@@ -1,0 +1,2653 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Criar Presente Digital ❤️</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Caveat:wght@700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f0f12;
+      --bg-card: #18181c;
+      --bg-input: #1e1e24;
+      --border: #2a2a32;
+      --border-focus: #8b5cf6;
+      --roxo: #8b5cf6;
+      --roxo-hover: #7c3aed;
+      --roxo-glow: rgba(139, 92, 246, 0.25);
+      --rosa: #e8576a;
+      --texto: #f0f0f5;
+      --texto-muted: #8b8b9e;
+      --texto-label: #a78bfa;
+      --sucesso: #34d399;
+      --perigo: #f87171;
+      --radius: 14px;
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--texto);
+      font-family: var(--font);
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── LAYOUT PRINCIPAL SPLIT-PANE ── */
+    .app-layout {
+      display: flex;
+      height: 100vh;
+      width: 100%;
+    }
+
+    /* ── PAINEL ESQUERDO (FORMULÁRIO) ── */
+    .editor-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+      min-width: 0;
+      position: relative;
+    }
+
+    .editor-scroll-area {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 40px 48px 32px 48px;
+      scroll-behavior: smooth;
+    }
+
+    .editor-scroll-area::-webkit-scrollbar {
+      width: 5px;
+    }
+    .editor-scroll-area::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .editor-scroll-area::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 10px;
+    }
+
+    /* ── BARRA DE PROGRESSO COM STEPS ── */
+    .steps-progress {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 0;
+      margin-bottom: 40px;
+      padding: 0 4px;
+    }
+
+    .step-indicator {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--texto-muted);
+      background: var(--bg);
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      flex-shrink: 0;
+      z-index: 2;
+    }
+
+    .step-indicator.active {
+      border-color: var(--roxo);
+      color: var(--roxo);
+      background: rgba(139, 92, 246, 0.08);
+      box-shadow: 0 0 0 4px var(--roxo-glow);
+    }
+
+    .step-indicator.done {
+      border-color: var(--roxo);
+      background: var(--roxo);
+      color: #fff;
+    }
+
+    .step-indicator.done::after {
+      content: '✓';
+      font-size: 0.85rem;
+      font-weight: 800;
+    }
+
+    .step-indicator.done span {
+      display: none;
+    }
+
+    .step-connector {
+      flex: 1;
+      height: 2px;
+      background: var(--border);
+      transition: background 0.3s;
+      min-width: 20px;
+      max-width: 50px;
+    }
+
+    .step-connector.done {
+      background: var(--roxo);
+    }
+
+    /* ── CONTEÚDO DO STEP ── */
+    .step-content {
+      display: none;
+      animation: fadeSlideIn 0.35s ease;
+    }
+
+    .step-content.active {
+      display: block;
+    }
+
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .step-title {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 6px;
+      letter-spacing: -0.5px;
+    }
+
+    .step-subtitle {
+      font-size: 0.95rem;
+      color: var(--texto-muted);
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+
+    .step-edit-hint {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      color: var(--texto-label);
+      margin-bottom: 24px;
+      padding: 5px 12px;
+      background: rgba(139, 92, 246, 0.06);
+      border: 1px solid rgba(139, 92, 246, 0.12);
+      border-radius: 8px;
+    }
+
+    /* ── FORMULÁRIOS ── */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--texto-label);
+      margin-bottom: 8px;
+    }
+
+    .form-label .label-icon {
+      font-size: 1rem;
+    }
+
+    .form-input,
+    .form-textarea {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--texto);
+      font-family: var(--font);
+      font-size: 0.92rem;
+      padding: 14px 16px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+
+    .form-input:focus,
+    .form-textarea:focus {
+      border-color: var(--roxo);
+      box-shadow: 0 0 0 3px var(--roxo-glow);
+    }
+
+    .form-input::placeholder,
+    .form-textarea::placeholder {
+      color: #555566;
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 120px;
+      line-height: 1.6;
+    }
+
+    .form-footer-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 6px;
+      padding: 0 4px;
+    }
+
+    .form-footer-info span {
+      font-size: 0.72rem;
+      color: var(--texto-muted);
+    }
+
+    .form-footer-action {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .form-footer-action button {
+      background: none;
+      border: none;
+      color: var(--texto-muted);
+      font-size: 0.78rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: color 0.2s;
+    }
+
+    .form-footer-action button:hover {
+      color: var(--roxo);
+    }
+
+    /* ── MUSIC ITEM (YOUTUBE) ── */
+    .music-item-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--bg-input);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      margin-bottom: 12px;
+      transition: border-color 0.2s;
+    }
+
+    .music-item-card:hover {
+      border-color: var(--roxo);
+    }
+
+    .music-thumb {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      background: #2a2a32;
+      background-size: cover;
+      background-position: center;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .music-meta {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .music-meta-duration {
+      font-size: 0.7rem;
+      color: var(--texto-muted);
+      letter-spacing: 1px;
+    }
+
+    .music-meta-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .music-remove-btn {
+      background: none;
+      border: none;
+      color: var(--texto-muted);
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 4px;
+      transition: color 0.2s;
+    }
+
+    .music-remove-btn:hover {
+      color: var(--perigo);
+    }
+
+    /* ── UPLOAD DE FOTOS ── */
+    .upload-dropzone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      margin-bottom: 20px;
+      background: var(--bg-input);
+    }
+
+    .upload-dropzone:hover {
+      border-color: var(--roxo);
+      background: rgba(139, 92, 246, 0.03);
+    }
+
+    .upload-icon {
+      font-size: 2rem;
+      color: var(--texto-muted);
+      margin-bottom: 8px;
+    }
+
+    .upload-text {
+      font-size: 0.85rem;
+      color: var(--texto-muted);
+      margin-bottom: 4px;
+    }
+
+    .upload-hint {
+      font-size: 0.72rem;
+      color: #555566;
+    }
+
+    .uploaded-grid-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .uploaded-grid-label span:first-child {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--texto-label);
+    }
+
+    .uploaded-grid-label span:last-child {
+      font-size: 0.78rem;
+      color: var(--roxo);
+      font-weight: 700;
+    }
+
+    .uploaded-photos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+      gap: 10px;
+    }
+
+    .uploaded-photo-item {
+      position: relative;
+      aspect-ratio: 1;
+      border-radius: 10px;
+      overflow: hidden;
+      background: var(--bg-input);
+      border: 1.5px solid var(--border);
+    }
+
+    .uploaded-photo-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .uploaded-photo-item .photo-order-badge {
+      position: absolute;
+      bottom: 6px;
+      left: 6px;
+      background: rgba(0,0,0,0.7);
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 700;
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .uploaded-photo-item .photo-drag-handle {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      background: rgba(0,0,0,0.5);
+      color: #fff;
+      font-size: 0.7rem;
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+    }
+
+    .uploaded-photo-item .photo-remove-btn {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: rgba(220, 50, 50, 0.85);
+      color: #fff;
+      border: none;
+      font-size: 0.7rem;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .uploaded-photo-item:hover .photo-remove-btn {
+      opacity: 1;
+    }
+
+    /* ── CONQUISTA EDITOR ── */
+    .conquista-editor-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: var(--bg-input);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin-bottom: 10px;
+    }
+
+    .conquista-editor-item .conq-emoji-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: #2a2a32;
+      border: 1.5px solid var(--border);
+      font-size: 1.4rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: border-color 0.2s;
+    }
+
+    .conquista-editor-item .conq-emoji-btn:hover {
+      border-color: var(--roxo);
+    }
+
+    .conquista-editor-item .conq-fields {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .conquista-editor-item .conq-fields input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--texto);
+      font-family: var(--font);
+      font-size: 0.82rem;
+      padding: 8px 10px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .conquista-editor-item .conq-fields input:focus {
+      border-color: var(--roxo);
+    }
+
+    /* ── TIMELINE EDITOR ── */
+    .timeline-editor-item {
+      background: var(--bg-input);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 12px;
+      position: relative;
+    }
+
+    .timeline-editor-item .tl-editor-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .timeline-editor-item .tl-editor-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .timeline-editor-item .tl-editor-full {
+      grid-column: 1 / -1;
+    }
+
+    .timeline-editor-item input,
+    .timeline-editor-item textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--texto);
+      font-family: var(--font);
+      font-size: 0.82rem;
+      padding: 8px 10px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .timeline-editor-item textarea {
+      min-height: 50px;
+      resize: vertical;
+    }
+
+    .timeline-editor-item input:focus,
+    .timeline-editor-item textarea:focus {
+      border-color: var(--roxo);
+    }
+
+    .tl-mini-label {
+      font-size: 0.65rem;
+      color: var(--texto-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 3px;
+      display: block;
+    }
+
+    .remove-item-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      color: var(--perigo);
+      font-size: 1rem;
+      cursor: pointer;
+      opacity: 0.5;
+      transition: opacity 0.2s;
+    }
+
+    .remove-item-btn:hover {
+      opacity: 1;
+    }
+
+    .add-item-btn {
+      width: 100%;
+      background: rgba(139, 92, 246, 0.06);
+      border: 1.5px dashed var(--roxo);
+      border-radius: var(--radius);
+      color: var(--roxo);
+      font-family: var(--font);
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-bottom: 12px;
+    }
+
+    .add-item-btn:hover {
+      background: rgba(139, 92, 246, 0.1);
+    }
+
+    /* ── FOOTER DE NAVEGAÇÃO ── */
+    .editor-footer-nav {
+      display: flex;
+      gap: 12px;
+      padding: 16px 48px 24px 48px;
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .btn-nav {
+      flex: 1;
+      padding: 15px 24px;
+      border-radius: 14px;
+      font-family: var(--font);
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-voltar {
+      background: var(--bg-input);
+      color: #fff;
+      border: 1.5px solid var(--border);
+    }
+
+    .btn-voltar:hover {
+      background: var(--bg-card);
+      border-color: #444;
+    }
+
+    .btn-voltar:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .btn-proximo {
+      background: var(--roxo);
+      color: #fff;
+      box-shadow: 0 4px 16px var(--roxo-glow);
+    }
+
+    .btn-proximo:hover {
+      background: var(--roxo-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px var(--roxo-glow);
+    }
+
+    .btn-exportar {
+      background: linear-gradient(135deg, var(--rosa), #d42b44);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(232, 87, 106, 0.3);
+    }
+
+    .btn-exportar:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(232, 87, 106, 0.4);
+    }
+
+    /* ── SEPARADOR ── */
+    .divider-line {
+      width: 2px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+
+    /* ── PAINEL DIREITO (PREVIEW) ── */
+    .preview-panel {
+      width: 480px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #0c0c10;
+      padding: 24px 32px;
+      overflow-y: auto;
+    }
+
+    .preview-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .preview-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--rosa);
+    }
+
+    .preview-refresh-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--texto-muted);
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .preview-refresh-btn:hover {
+      border-color: var(--roxo);
+      color: var(--roxo);
+    }
+
+    .preview-phone-frame {
+      width: 320px;
+      height: 640px;
+      border-radius: 36px;
+      border: 4px solid #2d2530;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 0 8px #1a1520;
+      overflow: hidden;
+      position: relative;
+      background: #1d0a0d;
+    }
+
+    .preview-phone-frame iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .app-layout {
+        flex-direction: column;
+      }
+      .preview-panel {
+        width: 100%;
+        height: 50vh;
+      }
+      .divider-line {
+        width: 100%;
+        height: 2px;
+      }
+      .editor-scroll-area {
+        padding: 24px 20px 16px 20px;
+      }
+      .editor-footer-nav {
+        padding: 12px 20px 16px 20px;
+      }
+    }
+
+    /* ── TOAST ── */
+    .toast-notification {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      background: var(--sucesso);
+      color: #000;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 14px 24px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(52, 211, 153, 0.3);
+      z-index: 9999;
+      display: none;
+      animation: slideUpToast 0.3s ease;
+    }
+
+    @keyframes slideUpToast {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* inline section cards */
+    .section-card {
+      background: var(--bg-input);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .section-card-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Upload foto inline tiny */
+    .inline-photo-upload {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .inline-photo-preview {
+      width: 64px;
+      height: 64px;
+      border-radius: 10px;
+      background: var(--bg);
+      border: 1.5px dashed var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.3rem;
+      color: var(--texto-muted);
+      overflow: hidden;
+      flex-shrink: 0;
+      transition: border-color 0.2s;
+    }
+
+    .inline-photo-preview:hover {
+      border-color: var(--roxo);
+    }
+
+    .inline-photo-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .inline-photo-info {
+      font-size: 0.78rem;
+      color: var(--texto-muted);
+    }
+
+    /* ── MODAL EXPANDIR ── */
+    .expand-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(6px);
+      z-index: 9998;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+    }
+    .expand-modal-overlay.active {
+      display: flex;
+    }
+    .expand-modal-box {
+      background: var(--bg-card);
+      border: 1.5px solid var(--border);
+      border-radius: 18px;
+      padding: 24px;
+      width: 100%;
+      max-width: 560px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      animation: fadeSlideIn 0.3s ease;
+    }
+    .expand-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .expand-modal-header h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .expand-modal-close {
+      background: none;
+      border: none;
+      color: var(--texto-muted);
+      font-size: 1.3rem;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .expand-modal-close:hover {
+      color: #fff;
+    }
+    .expand-modal-textarea {
+      flex: 1;
+      width: 100%;
+      min-height: 250px;
+      background: var(--bg-input);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--texto);
+      font-family: var(--font);
+      font-size: 0.92rem;
+      padding: 14px 16px;
+      resize: vertical;
+      outline: none;
+      line-height: 1.6;
+      transition: border-color 0.2s;
+    }
+    .expand-modal-textarea:focus {
+      border-color: var(--roxo);
+    }
+    .expand-modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .expand-modal-actions button {
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-family: var(--font);
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+    .expand-modal-actions .btn-cancel {
+      background: var(--bg-input);
+      color: #fff;
+      border: 1px solid var(--border);
+    }
+    .expand-modal-actions .btn-save {
+      background: var(--roxo);
+      color: #fff;
+    }
+
+    /* ── BUSCA DE MÚSICA ── */
+    .search-result-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: 6px;
+    }
+    .search-result-item:last-child {
+      margin-bottom: 0;
+    }
+    .search-result-item:hover {
+      border-color: var(--roxo);
+      background: rgba(139, 92, 246, 0.08);
+      transform: translateY(-1px);
+    }
+    .search-result-thumb {
+      width: 48px;
+      height: 48px;
+      border-radius: 6px;
+      background-size: cover;
+      background-position: center;
+      flex-shrink: 0;
+      background-color: #000;
+    }
+    .search-result-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .search-result-title {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .search-result-artist {
+      font-size: 0.76rem;
+      color: var(--texto-muted);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-layout">
+    <!-- PAINEL ESQUERDO: EDITOR -->
+    <div class="editor-panel">
+      <div class="editor-scroll-area" id="editorScrollArea">
+
+        <!-- BARRA DE PROGRESSO STEPS -->
+        <div class="steps-progress" id="stepsProgressBar">
+          <!-- Gerado via JS -->
+        </div>
+
+        <!-- ═══════════════ STEP 1: TÍTULO ═══════════════ -->
+        <div class="step-content" id="step-1">
+          <h1 class="step-title">Título do Presente</h1>
+          <p class="step-subtitle">Escreva o título do presente para marcar esse momento especial</p>
+          <div class="step-edit-hint">✏️ Você poderá editar todas as informações depois.</div>
+
+          <div class="form-group">
+            <textarea class="form-textarea" id="input-titulo" rows="3" placeholder="Aqui é o título" maxlength="30" oninput="aoEditarCampo()"></textarea>
+            <div class="form-footer-info">
+              <div class="form-footer-action">
+                <button onclick="gerarTexto('input-titulo', 'titulo')">✨ Gerar mensagem</button>
+                <button onclick="expandirCampo('input-titulo', 'Título do Presente')">🔎 Expandir</button>
+              </div>
+              <span id="titulo-counter">0/30</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label"><span class="label-icon">👤</span> Seu nome</label>
+            <input class="form-input" id="input-nome-ele" type="text" placeholder="Igor" oninput="aoEditarCampo()">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label"><span class="label-icon">💕</span> Nome do(a) parceiro(a)</label>
+            <input class="form-input" id="input-nome-ela" type="text" placeholder="Mariana" oninput="aoEditarCampo()">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label"><span class="label-icon">📅</span> Data do início do namoro</label>
+            <input class="form-input" id="input-data-inicio" type="date" oninput="aoEditarCampo()">
+          </div>
+        </div>
+
+        <!-- ═══════════════ STEP 2: MÚSICA ═══════════════ -->
+        <div class="step-content" id="step-2">
+          <h1 class="step-title">Música</h1>
+          <p class="step-subtitle">Escolha aquela música que representa a relação de vocês</p>
+          <div class="step-edit-hint">✏️ Você poderá editar todas as informações depois.</div>
+
+          <!-- API KEY DO YOUTUBE -->
+          <div class="form-group" style="margin-bottom: 16px;">
+            <label class="form-label"><span class="label-icon">🔑</span> Chave da YouTube Data API v3 <span style="font-size:0.65rem; color: var(--texto-muted); text-transform: none; letter-spacing:0;">(opcional — melhora a busca)</span></label>
+            <input class="form-input" id="input-youtube-apikey" type="password" placeholder="AIza... (obtenha grátis em console.cloud.google.com)" oninput="salvarApiKey()">
+            <div style="margin-top: 6px; font-size: 0.72rem; color: var(--texto-muted); line-height: 1.6;">
+              💡 Sem chave, usa o Invidious (instâncias públicas, pode ser lento). Com chave do YouTube, a busca é rápida e confiável. A chave é salva apenas localmente no seu navegador.
+              <a href="https://console.cloud.google.com/apis/library/youtube.googleapis.com" target="_blank" style="color: var(--roxo); text-decoration: none;">→ Ativar YouTube Data API v3</a>
+            </div>
+          </div>
+
+          <!-- BUSCA DE MÚSICA -->
+          <div class="form-group" style="margin-bottom: 24px;">
+            <label class="form-label"><span class="label-icon">🔍</span> Buscar Música (YouTube)</label>
+            <div style="display: flex; gap: 8px;">
+              <input class="form-input" id="input-music-search" type="text" placeholder="Digite o nome da música e do artista..." style="margin-bottom: 0; flex: 1;">
+              <button class="add-item-btn" id="btn-music-search" onclick="buscarMusica()" style="margin: 0; padding: 0 20px; white-space: nowrap; height: 46px; border-radius: 12px; background: var(--roxo); color: #fff; border: none; font-weight: 700; cursor: pointer;">Buscar</button>
+            </div>
+            <div id="search-loading" style="display: none; font-size: 0.82rem; color: var(--texto-muted); margin-top: 12px; align-items: center; gap: 8px;">
+              <span>⏳ Buscando no YouTube...</span>
+            </div>
+            <div id="search-results-container" style="display: none; margin-top: 12px; max-height: 240px; overflow-y: auto; background: var(--bg-card); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 8px; flex-direction: column; gap: 6px;">
+              <!-- Resultados inseridos via JS -->
+            </div>
+          </div>
+
+          <div id="music-items-list">
+            <!-- Cards de música inseridos via JS -->
+          </div>
+
+          <div class="form-group">
+            <label class="form-label"><span class="label-icon">🔗</span> URL do YouTube</label>
+            <input class="form-input" id="input-music-url" type="url" placeholder="https://www.youtube.com/watch?v=..." oninput="aoEditarCampo()">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label"><span class="label-icon">🎵</span> Título da Música</label>
+            <input class="form-input" id="input-music-titulo" type="text" placeholder="Dominic Fike - Babydoll (Lyrics)" oninput="aoEditarCampo()">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label"><span class="label-icon">🎤</span> Artista</label>
+            <input class="form-input" id="input-music-artista" type="text" placeholder="7clouds Rock" oninput="aoEditarCampo()">
+          </div>
+        </div>
+
+        <!-- ═══════════════ STEP 3: FOTOS ═══════════════ -->
+        <div class="step-content" id="step-3">
+          <h1 class="step-title">Fotos</h1>
+          <p class="step-subtitle">Adicione fotos para a capa desse presente único</p>
+          <div class="step-edit-hint">✏️ Você poderá editar todas as informações depois.</div>
+
+          <div class="upload-dropzone" id="dropzone-fotos-capa" onclick="document.getElementById('file-fotos-capa').click()">
+            <div class="upload-icon">📸</div>
+            <div class="upload-text">Clique ou arraste fotos aqui</div>
+            <div class="upload-hint">PNG, JPG, GIF, WEBP, AVIF até 10MB.</div>
+          </div>
+          <input type="file" id="file-fotos-capa" multiple accept="image/*" style="display:none;" onchange="aoFotosCapaAdicionadas(event)">
+
+          <div class="uploaded-grid-label" id="fotos-capa-header" style="display:none;">
+            <span>Imagens Carregadas</span>
+            <span id="fotos-capa-count">0</span>
+          </div>
+          <div class="uploaded-photos-grid" id="fotos-capa-grid"></div>
+        </div>
+
+        <!-- ═══════════════ STEP 4: MENSAGEM ═══════════════ -->
+        <div class="step-content" id="step-4">
+          <h1 class="step-title">Mensagem</h1>
+          <p class="step-subtitle">Escreva uma mensagem inesquecível (para emocionar)!</p>
+          <div class="step-edit-hint">✏️ Você poderá editar todas as informações depois.</div>
+
+          <div class="form-group">
+            <textarea class="form-textarea" id="input-mensagem" rows="6" maxlength="5000" placeholder="Tem dias que eu olho pra você e penso..." oninput="aoEditarCampo()" style="min-height: 180px;"></textarea>
+            <div class="form-footer-info">
+              <div class="form-footer-action">
+                <button onclick="gerarTexto('input-mensagem', 'mensagem')">✨ Gerar mensagem</button>
+                <button onclick="expandirCampo('input-mensagem', 'Mensagem Especial')">🔎 Expandir</button>
+              </div>
+              <span id="mensagem-counter">0/5000</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════ STEP 5: SOBRE O CASAL ═══════════════ -->
+        <div class="step-content" id="step-5">
+          <h1 class="step-title">Tempo Juntos</h1>
+          <p class="step-subtitle">Adicione a foto de capa do contador</p>
+          <div class="step-edit-hint">✏️ Você poderá editar todas as informações depois.</div>
+
+          <div class="upload-dropzone" id="dropzone-foto-sobre" onclick="document.getElementById('file-foto-sobre').click()">
+            <div class="upload-icon">📸</div>
+            <div class="upload-text">Foto de Capa do Contador</div>
+            <div class="upload-hint">PNG, JPG, GIF, WEBP, AVIF até 10MB.</div>
+          </div>
+          <input type="file" id="file-foto-sobre" accept="image/*" style="display:none;" onchange="aoFotoSobreAdicionada(event)">
+
+          <div class="uploaded-grid-label" id="foto-sobre-header" style="display:none;">
+            <span>Imagens Carregadas</span>
+            <span id="foto-sobre-count">0</span>
+          </div>
+          <div class="uploaded-photos-grid" id="foto-sobre-grid"></div>
+        </div>
+
+        <!-- ═══════════════ STEP 6: CONQUISTAS & WRAPPED ═══════════════ -->
+        <div class="step-content" id="step-6">
+          <h1 class="step-title">Conquistas & Extras</h1>
+          <p class="step-subtitle">Personalize conquistas, linha do tempo e mapa das estrelas</p>
+          <div class="step-edit-hint">✏️ Você poderá editar todas as informações depois.</div>
+
+          <!-- CONQUISTAS -->
+          <div class="section-card">
+            <div class="section-card-title">🏆 Conquistas</div>
+            <div id="conquistas-editor-list">
+              <!-- Gerado via JS -->
+            </div>
+            <button class="add-item-btn" onclick="adicionarConquista()">+ Adicionar Conquista</button>
+          </div>
+
+          <!-- ROLETA -->
+          <div class="section-card">
+            <div class="section-card-title">🎡 Roleta do Casal</div>
+            <div class="form-group">
+              <label class="form-label"><span class="label-icon">❓</span> Pergunta da roleta</label>
+              <input class="form-input" id="input-roleta-pergunta" type="text" placeholder="Para onde vamos sair hoje?" oninput="aoEditarCampo()">
+            </div>
+            <div id="roleta-opcoes-list">
+              <!-- Gerado via JS -->
+            </div>
+            <button class="add-item-btn" onclick="adicionarOpcaoRoleta()">+ Adicionar Opção</button>
+          </div>
+
+          <!-- TIMELINE -->
+          <div class="section-card">
+            <div class="section-card-title">📍 Linha do Tempo</div>
+            <div id="timeline-editor-list">
+              <!-- Gerado via JS -->
+            </div>
+            <button class="add-item-btn" onclick="adicionarTimeline()">+ Adicionar Momento</button>
+          </div>
+
+          <!-- MAPA DAS ESTRELAS -->
+          <div class="section-card">
+            <div class="section-card-title">✨ Mapa das Estrelas</div>
+            <div class="form-group">
+              <label class="form-label">Local</label>
+              <input class="form-input" id="input-estrelas-local" type="text" placeholder="Praia do Rosa - SC, Brasil" oninput="aoEditarCampo()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Data do encontro</label>
+              <input class="form-input" id="input-estrelas-data" type="text" placeholder="05 de Junho de 2025 - 22:00" oninput="aoEditarCampo()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Coordenadas</label>
+              <input class="form-input" id="input-estrelas-coords" type="text" placeholder="28.1301° S, 48.6421° W" oninput="aoEditarCampo()">
+            </div>
+          </div>
+
+          <!-- STORIES -->
+          <div class="section-card">
+            <div class="section-card-title">📖 Stories do Casal</div>
+            <div id="stories-editor-list">
+              <!-- Gerado via JS -->
+            </div>
+            <button class="add-item-btn" onclick="adicionarStory()">+ Adicionar Story</button>
+          </div>
+
+          <!-- JOGO DA PALAVRA -->
+          <div class="section-card">
+            <div class="section-card-title">🧩 Jogo da Palavra</div>
+            <div class="form-group">
+              <label class="form-label">Dica</label>
+              <input class="form-input" id="input-jogo-dica" type="text" placeholder="A palavra que resume tudo o que sinto por você:" oninput="aoEditarCampo()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Palavra secreta</label>
+              <input class="form-input" id="input-jogo-palavra" type="text" placeholder="AMOR" maxlength="10" oninput="aoEditarCampo()" style="text-transform: uppercase;">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Mensagem ao acertar</label>
+              <input class="form-input" id="input-jogo-msg" type="text" placeholder="AMOR é o que rege cada segundo ao seu lado! ❤️" oninput="aoEditarCampo()">
+            </div>
+          </div>
+
+          <!-- NATAL/FINAL -->
+          <div class="section-card">
+            <div class="section-card-title">🎄 Mensagem Final</div>
+            <div class="form-group">
+              <label class="form-label">Tag</label>
+              <input class="form-input" id="input-natal-tag" type="text" placeholder="Seu Amor" oninput="aoEditarCampo()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Título</label>
+              <input class="form-input" id="input-natal-titulo" type="text" placeholder="EU TE AMO" oninput="aoEditarCampo()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Mensagem</label>
+              <textarea class="form-textarea" id="input-natal-msg" placeholder="Que a magia do nosso amor continue brilhando..." oninput="aoEditarCampo()" rows="3"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════ STEP 7: PUBLICAR ═══════════════ -->
+        <div class="step-content" id="step-7">
+          <h1 class="step-title">Publicar Presente</h1>
+          <p class="step-subtitle">Seu presente vai ao ar automaticamente no GitHub Pages</p>
+          <div class="step-edit-hint">🔒 Seu token é salvo apenas localmente no seu navegador.</div>
+
+          <!-- TOKEN -->
+          <div class="form-group">
+            <label class="form-label"><span class="label-icon">🔑</span> GitHub Personal Access Token</label>
+            <input class="form-input" id="input-gh-token" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" oninput="salvarGhToken()">
+            <div style="margin-top: 8px; font-size: 0.72rem; color: var(--texto-muted); line-height: 1.7;">
+              Precisa de um token com permissão <strong style="color:#a78bfa">repo</strong> (criar e gerenciar repositórios).<br>
+              <a href="https://github.com/settings/tokens/new?scopes=repo&description=Presente+Digital" target="_blank" style="color: var(--roxo); text-decoration: none;">→ Clique aqui para gerar seu token no GitHub</a>
+            </div>
+          </div>
+
+          <!-- NOME DO REPO -->
+          <div class="form-group">
+            <label class="form-label"><span class="label-icon">📁</span> Nome do repositório</label>
+            <input class="form-input" id="input-gh-repo" type="text" placeholder="presente-igor-e-mariana" oninput="atualizarPreviewLink()">
+            <div style="margin-top: 6px; font-size: 0.72rem; color: var(--texto-muted);">
+              Link final: <span id="preview-link" style="color: var(--roxo); font-family: monospace;">seuusuario.github.io/nome-do-repo</span>
+            </div>
+          </div>
+
+          <!-- USUARIO GH -->
+          <div class="form-group">
+            <label class="form-label"><span class="label-icon">👤</span> Seu usuário no GitHub</label>
+            <input class="form-input" id="input-gh-usuario" type="text" placeholder="igoor-og" oninput="salvarGhUsuario(); atualizarPreviewLink()">
+          </div>
+
+          <!-- STATUS DA PUBLICAÇÃO -->
+          <div id="publish-status" style="display:none; margin-top: 8px;">
+            <div id="publish-steps-list" style="display:flex; flex-direction:column; gap:8px; margin-bottom: 20px;"></div>
+            <div id="publish-link-box" style="display:none; background: rgba(52,211,153,0.08); border: 1.5px solid rgba(52,211,153,0.3); border-radius: 14px; padding: 20px 24px;">
+              <p style="font-size:0.75rem; letter-spacing:2px; text-transform:uppercase; color:#34d399; margin-bottom:8px;">✅ Presente publicado!</p>
+              <p id="publish-link-url" style="font-family:monospace; font-size:0.95rem; color:#fff; word-break:break-all; margin-bottom: 14px;"></p>
+              <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <button onclick="copiarLink()" style="background:var(--roxo); border:none; color:#fff; padding:10px 20px; border-radius:10px; font-weight:700; font-size:0.82rem; cursor:pointer; font-family:var(--font);">📋 Copiar link</button>
+                <button onclick="abrirLink()" style="background:var(--bg-input); border:1px solid var(--border); color:#fff; padding:10px 20px; border-radius:10px; font-weight:700; font-size:0.82rem; cursor:pointer; font-family:var(--font);">🔗 Abrir presente</button>
+                <button onclick="baixarTambem()" style="background:var(--bg-input); border:1px solid var(--border); color:#fff; padding:10px 20px; border-radius:10px; font-weight:700; font-size:0.82rem; cursor:pointer; font-family:var(--font);">💾 Baixar .html também</button>
+              </div>
+              <p style="margin-top:12px; font-size:0.72rem; color:var(--texto-muted);">⏳ O GitHub Pages pode levar até 60 segundos para ativar na primeira vez.</p>
+            </div>
+          </div>
+
+          <!-- BOTÃO PUBLICAR -->
+          <button id="btn-publicar" onclick="publicarNoGitHub()" style="width:100%; margin-top: 8px; background: linear-gradient(135deg, #34d399, #059669); border:none; color:#fff; padding:18px 24px; border-radius:14px; font-family:var(--font); font-size:1rem; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; transition: all 0.2s; box-shadow: 0 4px 20px rgba(52,211,153,0.25);">
+            🚀 Publicar Presente Agora
+          </button>
+          <p style="text-align:center; margin-top:10px; font-size:0.75rem; color: var(--texto-muted);">Ou use o botão abaixo para apenas baixar o arquivo .html</p>
+          <button onclick="exportarSomenteBaixar()" style="width:100%; margin-top:6px; background:var(--bg-input); border:1.5px solid var(--border); color:var(--texto-muted); padding:13px 24px; border-radius:14px; font-family:var(--font); font-size:0.85rem; font-weight:600; cursor:pointer;">💾 Só baixar o arquivo</button>
+        </div>
+
+      </div>
+
+      <!-- FOOTER NAV -->
+      <div class="editor-footer-nav">
+        <button class="btn-nav btn-voltar" id="btnVoltar" onclick="navStep(-1)" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          Voltar
+        </button>
+        <button class="btn-nav btn-proximo" id="btnProximo" onclick="navStep(1)">
+          Próximo Passo
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- SEPARADOR VERTICAL -->
+    <div class="divider-line"></div>
+
+    <!-- PAINEL DIREITO: PREVIEW -->
+    <div class="preview-panel">
+      <div class="preview-header">
+        <span class="preview-label">VISUALIZAÇÃO AO VIVO</span>
+        <button class="preview-refresh-btn" onclick="recarregarPreview()" title="Recarregar preview">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        </button>
+      </div>
+      <div class="preview-phone-frame">
+        <iframe id="previewIframe" src="presente-digital.html"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPAND MODAL -->
+  <div class="expand-modal-overlay" id="expandModal">
+    <div class="expand-modal-box">
+      <div class="expand-modal-header">
+        <h3 id="expandModalTitle">Expandir</h3>
+        <button class="expand-modal-close" onclick="fecharExpandModal()">✕</button>
+      </div>
+      <textarea class="expand-modal-textarea" id="expandModalTextarea"></textarea>
+      <div class="expand-modal-actions">
+        <button class="btn-cancel" onclick="fecharExpandModal()">Cancelar</button>
+        <button class="btn-save" onclick="salvarExpandModal()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast-notification" id="globalToast"></div>
+
+  <script>
+    /* ═══════════════════════════════════════════════════
+       ESTADO DO EDITOR
+       ═══════════════════════════════════════════════════ */
+    const TOTAL_STEPS = 7;
+    let stepAtual = 1;
+
+    // Dados das fotos de capa (base64)
+    let fotosCapa = [];
+    // Foto de capa do "sobre o casal"
+    let fotoSobreCapa = [];
+
+    // Dados do editor
+    let editorData = {
+      tituloCabecalho: 'Nosso Presente',
+      nomes: { ele: 'Igor', ela: 'Mariana' },
+      dataInicio: '2025-06-05T12:00:00',
+      musicas: [
+        {
+          url: 'https://www.youtube.com/watch?v=DominicFikeBabydoll',
+          titulo: 'Dominic Fike - Babydoll (Lyrics)',
+          artista: '7clouds Rock',
+          capa: ''
+        }
+      ],
+      fotosSlide: [],
+      fotoSobre: '',
+      mensagem: '',
+      conquistas: [
+        { icone: '🎉', titulo: 'Primeiro Beijo', desc: 'Aquele momento congelado no tempo que definiu nossa história.' },
+        { icone: '♾️', titulo: "O 'Sim'", desc: 'O início oficial de uma jornada linda de cumplicidade e sonhos.' },
+        { icone: '🎂', titulo: 'Aniversário', desc: 'Celebrando ciclos de sorrisos compartilhados e carinho constante.' },
+        { icone: '🎯', titulo: 'Futuro Juntos', desc: 'Todos os planos grandiosos que sonhamos em construir lado a lado.' }
+      ],
+      roletaPergunta: 'Para onde vamos sair hoje?',
+      roleta: ['Cinema', 'Ficar em Casa (Netflix) 🍿', 'Rodízio de Japa 🍣', 'Piquenique', 'Jantar Romântico', 'Hamburgueria 🍔'],
+      timeline: [
+        { data: 'Janeiro 2025', titulo: 'O Primeiro Olhar', desc: 'Tudo começou com uma conversa simples que se transformou em algo único.', foto: '', legenda: 'O começo de tudo...' }
+      ],
+      mapaEstrelas: {
+        local: 'Praia do Rosa - SC, Brasil',
+        data: '05 de Junho de 2025 - 22:00',
+        coordenadas: '28.1301° S, 48.6421° W'
+      },
+      stories: [
+        { img: '', titulo: 'Parceiros no Crime', desc: 'Sempre rindo das piadas mais bobas no fim de semana.' }
+      ],
+      jogoPalavra: {
+        dica: 'A palavra que resume tudo o que sinto por você:',
+        palavra: 'AMOR',
+        msgFinal: 'AMOR é o que rege cada segundo ao seu lado! ❤️'
+      },
+      jornadaMapa: [],
+      natal: {
+        tag: 'Seu Amor',
+        titulo: 'EU TE AMO',
+        remetente: 'Igor',
+        mensagem: 'Que a magia do nosso amor continue brilhando neste e em todos os próximos Natais!'
+      }
+    };
+
+
+    /* ═══════════════════════════════════════════════════
+       NAVEGAÇÃO DE STEPS
+       ═══════════════════════════════════════════════════ */
+    function renderStepsProgress() {
+      const container = document.getElementById('stepsProgressBar');
+      container.innerHTML = '';
+      for (let i = 1; i <= TOTAL_STEPS; i++) {
+        const indicator = document.createElement('div');
+        indicator.className = 'step-indicator';
+        if (i === stepAtual) indicator.classList.add('active');
+        if (i < stepAtual) indicator.classList.add('done');
+        indicator.innerHTML = `<span>${i}</span>`;
+        indicator.onclick = () => irParaStep(i);
+        container.appendChild(indicator);
+
+        if (i < TOTAL_STEPS) {
+          const connector = document.createElement('div');
+          connector.className = 'step-connector';
+          if (i < stepAtual) connector.classList.add('done');
+          container.appendChild(connector);
+        }
+      }
+    }
+
+    function irParaStep(idx) {
+      stepAtual = idx;
+      renderStepsProgress();
+      mostrarStepAtivo();
+    }
+
+    function navStep(dir) {
+      const prox = stepAtual + dir;
+      if (prox < 1) return;
+      if (prox > TOTAL_STEPS) return;
+
+      salvarStepAtual();
+      stepAtual = prox;
+
+      // Auto-preencher nome do repo ao chegar no step 7
+      if (stepAtual === TOTAL_STEPS) {
+        const nomeEle = (editorData.nomes.ele || '').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+        const nomeEla = (editorData.nomes.ela || '').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+        const repoInput = document.getElementById('input-gh-repo');
+        if (repoInput && !repoInput.value) {
+          repoInput.value = `presente-${nomeEle || 'eu'}-e-${nomeEla || 'voce'}`;
+        }
+        atualizarPreviewLink();
+      }
+
+      renderStepsProgress();
+      mostrarStepAtivo();
+      atualizarBotoes();
+      enviarConfigParaPreview();
+    }
+
+    function mostrarStepAtivo() {
+      document.querySelectorAll('.step-content').forEach(s => s.classList.remove('active'));
+      const target = document.getElementById(`step-${stepAtual}`);
+      if (target) target.classList.add('active');
+      atualizarBotoes();
+      document.getElementById('editorScrollArea').scrollTop = 0;
+    }
+
+    function atualizarBotoes() {
+      document.getElementById('btnVoltar').disabled = (stepAtual === 1);
+      const btnProx = document.getElementById('btnProximo');
+      if (stepAtual === TOTAL_STEPS) {
+        btnProx.style.display = 'none'; // step 7 tem botão próprio
+      } else if (stepAtual === TOTAL_STEPS - 1) {
+        btnProx.style.display = '';
+        btnProx.innerHTML = 'Revisar e Publicar <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>';
+        btnProx.className = 'btn-nav btn-exportar';
+      } else {
+        btnProx.style.display = '';
+        btnProx.innerHTML = 'Próximo Passo <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>';
+        btnProx.className = 'btn-nav btn-proximo';
+      }
+    }
+
+
+    /* ═══════════════════════════════════════════════════
+       SINCRONIZAÇÃO DOS INPUTS
+       ═══════════════════════════════════════════════════ */
+    function salvarStepAtual() {
+      // Step 1 – Título e dados básicos
+      const tit = document.getElementById('input-titulo').value.trim();
+      if (tit) editorData.tituloCabecalho = tit;
+      
+      const nomeEle = document.getElementById('input-nome-ele').value.trim();
+      const nomeEla = document.getElementById('input-nome-ela').value.trim();
+      if (nomeEle) editorData.nomes.ele = nomeEle;
+      if (nomeEla) editorData.nomes.ela = nomeEla;
+      
+      const dataInicio = document.getElementById('input-data-inicio').value;
+      if (dataInicio) editorData.dataInicio = dataInicio + 'T12:00:00';
+
+      // Step 2 – Música
+      const musicUrl = document.getElementById('input-music-url').value.trim();
+      const musicTit = document.getElementById('input-music-titulo').value.trim();
+      const musicArt = document.getElementById('input-music-artista').value.trim();
+      if (musicUrl || musicTit) {
+        editorData.musicas = [{
+          url: musicUrl || editorData.musicas[0]?.url || '',
+          titulo: musicTit || editorData.musicas[0]?.titulo || 'Sem título',
+          artista: musicArt || editorData.musicas[0]?.artista || 'Desconhecido',
+          capa: ''
+        }];
+      }
+
+      // Step 3 – Fotos (já tratado no handler de upload)
+      editorData.fotosSlide = fotosCapa.map(f => f.data);
+
+      // Step 4 – Mensagem
+      const msg = document.getElementById('input-mensagem').value.trim();
+      if (msg) editorData.mensagem = msg;
+
+      // Step 5 – foto sobre
+      if (fotoSobreCapa.length > 0) {
+        editorData.fotoSobre = fotoSobreCapa[0].data;
+      }
+
+      // Step 6 – Extras
+      salvarConquistas();
+      salvarRoleta();
+      salvarTimeline();
+      salvarEstrelasConfig();
+      salvarStories();
+      salvarJogoPalavra();
+      salvarNatal();
+
+      // Remetente = nome dele
+      editorData.natal.remetente = editorData.nomes.ele;
+    }
+
+    function aoEditarCampo() {
+      salvarStepAtual();
+      enviarConfigParaPreview();
+      
+      // Atualizar contadores
+      const titInput = document.getElementById('input-titulo');
+      if (titInput) document.getElementById('titulo-counter').textContent = `${titInput.value.length}/30`;
+      
+      const msgInput = document.getElementById('input-mensagem');
+      if (msgInput) document.getElementById('mensagem-counter').textContent = `${msgInput.value.length}/5000`;
+    }
+
+
+    /* ═══════════════════════════════════════════════════
+       UPLOAD DE FOTOS DE CAPA
+       ═══════════════════════════════════════════════════ */
+    function aoFotosCapaAdicionadas(event) {
+      const files = Array.from(event.target.files);
+      files.forEach(file => {
+        if (file.size > 10 * 1024 * 1024) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          fotosCapa.push({ name: file.name, data: e.target.result });
+          renderFotosCapa();
+          aoEditarCampo();
+        };
+        reader.readAsDataURL(file);
+      });
+      event.target.value = '';
+    }
+
+    function renderFotosCapa() {
+      const grid = document.getElementById('fotos-capa-grid');
+      const header = document.getElementById('fotos-capa-header');
+      const count = document.getElementById('fotos-capa-count');
+
+      grid.innerHTML = '';
+      if (fotosCapa.length > 0) {
+        header.style.display = 'flex';
+        count.textContent = fotosCapa.length;
+      } else {
+        header.style.display = 'none';
+      }
+
+      fotosCapa.forEach((foto, idx) => {
+        const item = document.createElement('div');
+        item.className = 'uploaded-photo-item';
+        item.innerHTML = `
+          <img src="${foto.data}" alt="Foto ${idx + 1}">
+          <div class="photo-drag-handle">⋮⋮</div>
+          <div class="photo-order-badge">${idx + 1}</div>
+          <button class="photo-remove-btn" onclick="removerFotoCapa(${idx})">✕</button>
+        `;
+        grid.appendChild(item);
+      });
+    }
+
+    function removerFotoCapa(idx) {
+      fotosCapa.splice(idx, 1);
+      renderFotosCapa();
+      aoEditarCampo();
+    }
+
+
+    /* ═══════════════════════════════════════════════════
+       UPLOAD DE FOTO SOBRE O CASAL
+       ═══════════════════════════════════════════════════ */
+    function aoFotoSobreAdicionada(event) {
+      const files = Array.from(event.target.files);
+      if (files.length === 0) return;
+      const file = files[0];
+      if (file.size > 10 * 1024 * 1024) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        fotoSobreCapa = [{ name: file.name, data: e.target.result }];
+        renderFotoSobre();
+        aoEditarCampo();
+      };
+      reader.readAsDataURL(file);
+      event.target.value = '';
+    }
+
+    function renderFotoSobre() {
+      const grid = document.getElementById('foto-sobre-grid');
+      const header = document.getElementById('foto-sobre-header');
+      const count = document.getElementById('foto-sobre-count');
+
+      grid.innerHTML = '';
+      if (fotoSobreCapa.length > 0) {
+        header.style.display = 'flex';
+        count.textContent = fotoSobreCapa.length;
+      } else {
+        header.style.display = 'none';
+      }
+
+      fotoSobreCapa.forEach((foto, idx) => {
+        const item = document.createElement('div');
+        item.className = 'uploaded-photo-item';
+        item.innerHTML = `
+          <img src="${foto.data}" alt="Foto Sobre ${idx + 1}">
+          <div class="photo-order-badge">${idx + 1}</div>
+          <button class="photo-remove-btn" onclick="removerFotoSobre(${idx})">✕</button>
+        `;
+        grid.appendChild(item);
+      });
+    }
+
+    function removerFotoSobre(idx) {
+      fotoSobreCapa.splice(idx, 1);
+      renderFotoSobre();
+      aoEditarCampo();
+    }
+
+
+    /* ═══════════════════════════════════════════════════
+       CONQUISTAS EDITOR
+       ═══════════════════════════════════════════════════ */
+    function renderConquistasEditor() {
+      const container = document.getElementById('conquistas-editor-list');
+      container.innerHTML = '';
+      editorData.conquistas.forEach((c, idx) => {
+        const item = document.createElement('div');
+        item.className = 'conquista-editor-item';
+        item.innerHTML = `
+          <button class="conq-emoji-btn" onclick="editarEmojiConquista(${idx})" title="Trocar emoji">${c.icone}</button>
+          <div class="conq-fields">
+            <input type="text" value="${c.titulo}" placeholder="Título da conquista" onchange="editorData.conquistas[${idx}].titulo=this.value; aoEditarCampo()">
+            <input type="text" value="${c.desc}" placeholder="Descrição curta" onchange="editorData.conquistas[${idx}].desc=this.value; aoEditarCampo()">
+          </div>
+          <button class="remove-item-btn" onclick="removerConquista(${idx})">✕</button>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function editarEmojiConquista(idx) {
+      const emoji = prompt('Digite o novo emoji:', editorData.conquistas[idx].icone);
+      if (emoji) {
+        editorData.conquistas[idx].icone = emoji;
+        renderConquistasEditor();
+        aoEditarCampo();
+      }
+    }
+
+    function adicionarConquista() {
+      editorData.conquistas.push({ icone: '🌟', titulo: 'Nova Conquista', desc: 'Descrição aqui...' });
+      renderConquistasEditor();
+      aoEditarCampo();
+    }
+
+    function removerConquista(idx) {
+      editorData.conquistas.splice(idx, 1);
+      renderConquistasEditor();
+      aoEditarCampo();
+    }
+
+    function salvarConquistas() {
+      // Já sincronizados via onchange
+    }
+
+
+    /* ═══════════════════════════════════════════════════
+       ROLETA EDITOR
+       ═══════════════════════════════════════════════════ */
+    function renderRoletaEditor() {
+      const container = document.getElementById('roleta-opcoes-list');
+      container.innerHTML = '';
+      const perguntaInput = document.getElementById('input-roleta-pergunta');
+      if (perguntaInput) perguntaInput.value = editorData.roletaPergunta;
+
+      editorData.roleta.forEach((op, idx) => {
+        const item = document.createElement('div');
+        item.style.cssText = 'display:flex; gap:8px; margin-bottom:8px; align-items:center;';
+        item.innerHTML = `
+          <input class="form-input" type="text" value="${op}" style="flex:1;" onchange="editorData.roleta[${idx}]=this.value; aoEditarCampo()">
+          <button class="remove-item-btn" style="position:static;" onclick="removerOpcaoRoleta(${idx})">✕</button>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function adicionarOpcaoRoleta() {
+      editorData.roleta.push('Nova opção');
+      renderRoletaEditor();
+      aoEditarCampo();
+    }
+
+    function removerOpcaoRoleta(idx) {
+      editorData.roleta.splice(idx, 1);
+      renderRoletaEditor();
+      aoEditarCampo();
+    }
+
+    function salvarRoleta() {
+      const p = document.getElementById('input-roleta-pergunta');
+      if (p) editorData.roletaPergunta = p.value.trim() || editorData.roletaPergunta;
+    }
+
+
+    /* ═══════════════════════════════════════════════════
+       TIMELINE EDITOR
+       ═══════════════════════════════════════════════════ */
+    function renderTimelineEditor() {
+      const container = document.getElementById('timeline-editor-list');
+      container.innerHTML = '';
+
+      editorData.timeline.forEach((item, idx) => {
+        const el = document.createElement('div');
+        el.className = 'timeline-editor-item';
+        el.innerHTML = `
+          <button class="remove-item-btn" onclick="removerTimeline(${idx})">✕</button>
+          <div class="tl-editor-row">
+            <div>
+              <span class="tl-mini-label">Data</span>
+              <input type="text" value="${item.data}" placeholder="Janeiro 2025" onchange="editorData.timeline[${idx}].data=this.value; aoEditarCampo()">
+            </div>
+            <div>
+              <span class="tl-mini-label">Título</span>
+              <input type="text" value="${item.titulo}" placeholder="O Primeiro Olhar" onchange="editorData.timeline[${idx}].titulo=this.value; aoEditarCampo()">
+            </div>
+          </div>
+          <div class="tl-editor-row">
+            <div class="tl-editor-full">
+              <span class="tl-mini-label">Descrição</span>
+              <textarea onchange="editorData.timeline[${idx}].desc=this.value; aoEditarCampo()" placeholder="Descrição do momento...">${item.desc}</textarea>
+            </div>
+          </div>
+          <div class="tl-editor-row">
+            <div>
+              <span class="tl-mini-label">Legenda da foto</span>
+              <input type="text" value="${item.legenda}" placeholder="Legenda..." onchange="editorData.timeline[${idx}].legenda=this.value; aoEditarCampo()">
+            </div>
+            <div>
+              <span class="tl-mini-label">URL da foto</span>
+              <input type="text" value="${item.foto}" placeholder="https://..." onchange="editorData.timeline[${idx}].foto=this.value; aoEditarCampo()">
+            </div>
+          </div>
+        `;
+        container.appendChild(el);
+      });
+    }
+
+    function adicionarTimeline() {
+      editorData.timeline.push({ data: 'Mês Ano', titulo: 'Novo Momento', desc: 'Descrição...', foto: '', legenda: 'Legenda' });
+      renderTimelineEditor();
+      aoEditarCampo();
+    }
+
+    function removerTimeline(idx) {
+      editorData.timeline.splice(idx, 1);
+      renderTimelineEditor();
+      aoEditarCampo();
+    }
+
+    function salvarTimeline() {
+      // Já sincronizados via onchange
+    }
+
+
+    /* ═══════════════════════════════════════════════════
+       MAPA DAS ESTRELAS
+       ═══════════════════════════════════════════════════ */
+    function salvarEstrelasConfig() {
+      const local = document.getElementById('input-estrelas-local');
+      const data = document.getElementById('input-estrelas-data');
+      const coords = document.getElementById('input-estrelas-coords');
+      if (local) editorData.mapaEstrelas.local = local.value.trim() || editorData.mapaEstrelas.local;
+      if (data) editorData.mapaEstrelas.data = data.value.trim() || editorData.mapaEstrelas.data;
+      if (coords) editorData.mapaEstrelas.coordenadas = coords.value.trim() || editorData.mapaEstrelas.coordenadas;
+    }
+
+
+    /* ═══════════════════════════════════════════════════
+       STORIES EDITOR
+       ═══════════════════════════════════════════════════ */
+    function renderStoriesEditor() {
+      const container = document.getElementById('stories-editor-list');
+      container.innerHTML = '';
+
+      editorData.stories.forEach((st, idx) => {
+        const el = document.createElement('div');
+        el.className = 'timeline-editor-item';
+        el.innerHTML = `
+          <button class="remove-item-btn" onclick="removerStory(${idx})">✕</button>
+          <div class="tl-editor-row">
+            <div>
+              <span class="tl-mini-label">Título</span>
+              <input type="text" value="${st.titulo}" placeholder="Título do story" onchange="editorData.stories[${idx}].titulo=this.value; aoEditarCampo()">
+            </div>
+            <div>
+              <span class="tl-mini-label">URL da Imagem</span>
+              <input type="text" value="${st.img}" placeholder="https://..." onchange="editorData.stories[${idx}].img=this.value; aoEditarCampo()">
+            </div>
+          </div>
+          <div class="tl-editor-row">
+            <div class="tl-editor-full">
+              <span class="tl-mini-label">Descrição</span>
+              <textarea onchange="editorData.stories[${idx}].desc=this.value; aoEditarCampo()" placeholder="Descrição...">${st.desc}</textarea>
+            </div>
+          </div>
+        `;
+        container.appendChild(el);
+      });
+    }
+
+    function adicionarStory() {
+      editorData.stories.push({ img: '', titulo: 'Novo Story', desc: 'Descrição...' });
+      renderStoriesEditor();
+      aoEditarCampo();
+    }
+
+    function removerStory(idx) {
+      editorData.stories.splice(idx, 1);
+      renderStoriesEditor();
+      aoEditarCampo();
+    }
+
+    function salvarStories() {
+      // Já sincronizados via onchange
+    }
+
+
+    /* ═══════════════════════════════════════════════════
+       JOGO DA PALAVRA
+       ═══════════════════════════════════════════════════ */
+    function salvarJogoPalavra() {
+      const dica = document.getElementById('input-jogo-dica');
+      const palavra = document.getElementById('input-jogo-palavra');
+      const msg = document.getElementById('input-jogo-msg');
+      if (dica) editorData.jogoPalavra.dica = dica.value.trim() || editorData.jogoPalavra.dica;
+      if (palavra) editorData.jogoPalavra.palavra = (palavra.value.trim() || editorData.jogoPalavra.palavra).toUpperCase();
+      if (msg) editorData.jogoPalavra.msgFinal = msg.value.trim() || editorData.jogoPalavra.msgFinal;
+    }
+
+
+    /* ═══════════════════════════════════════════════════
+       NATAL
+       ═══════════════════════════════════════════════════ */
+    function salvarNatal() {
+      const tag = document.getElementById('input-natal-tag');
+      const titulo = document.getElementById('input-natal-titulo');
+      const msg = document.getElementById('input-natal-msg');
+      if (tag) editorData.natal.tag = tag.value.trim() || editorData.natal.tag;
+      if (titulo) editorData.natal.titulo = titulo.value.trim() || editorData.natal.titulo;
+      if (msg) editorData.natal.mensagem = msg.value.trim() || editorData.natal.mensagem;
+    }
+
+
+    /* ═══════════════════════════════════════════════════
+       SINCRONIZAÇÃO COM O PREVIEW (POSTMESSAGE)
+       ═══════════════════════════════════════════════════ */
+    let debounceTimer = null;
+    
+    function enviarConfigParaPreview() {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        const iframe = document.getElementById('previewIframe');
+        if (iframe && iframe.contentWindow) {
+          iframe.contentWindow.postMessage({
+            type: 'UPDATE_CONFIG',
+            config: editorData
+          }, '*');
+        }
+      }, 200);
+    }
+
+    function recarregarPreview() {
+      const iframe = document.getElementById('previewIframe');
+      iframe.src = iframe.src;
+      setTimeout(() => {
+        enviarConfigParaPreview();
+      }, 1500);
+    }
+
+
+    /* ═══════════════════════════════════════════════════
+       EXPORTAÇÃO DO SITE FINAL
+       ═══════════════════════════════════════════════════ */
+    function exportarSiteFinal() {
+      salvarStepAtual();
+
+      // Buscar HTML do presente-digital.html via fetch
+      fetch('presente-digital.html')
+        .then(res => res.text())
+        .then(htmlOriginal => {
+          // Substituir o CONFIG default pelo editorData
+          const configJSON = JSON.stringify(editorData, null, 6);
+          const regex = /let CONFIG = \{[\s\S]*?\};/;
+          const novoHtml = htmlOriginal.replace(regex, `let CONFIG = ${configJSON};`);
+
+          // Criar blob e fazer download
+          const blob = new Blob([novoHtml], { type: 'text/html' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `presente-${editorData.nomes.ele}-e-${editorData.nomes.ela}.html`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+
+          mostrarToast('✅ Site exportado com sucesso!');
+        })
+        .catch(err => {
+          console.error(err);
+          // Fallback: gerar diretamente
+          mostrarToast('❌ Erro ao exportar. Verifique o console.');
+        });
+    }
+
+
+    /* ═══════════════════════════════════════════════════
+       TOAST
+       ═══════════════════════════════════════════════════ */
+    function mostrarToast(msg) {
+      const toast = document.getElementById('globalToast');
+      toast.textContent = msg;
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 3000);
+    }
+
+
+    /* ═══════════════════════════════════════════════════
+       CARREGAR DADOS SALVOS (LOCALSTORAGE)
+       ═══════════════════════════════════════════════════ */
+    function salvarNoLocalStorage() {
+      try {
+        localStorage.setItem('criador_editorData', JSON.stringify(editorData));
+        localStorage.setItem('criador_fotosCapa', JSON.stringify(fotosCapa));
+        localStorage.setItem('criador_fotoSobreCapa', JSON.stringify(fotoSobreCapa));
+      } catch(e) {
+        console.warn('Erro ao salvar no localStorage:', e);
+      }
+    }
+
+    function carregarDoLocalStorage() {
+      try {
+        const data = localStorage.getItem('criador_editorData');
+        if (data) editorData = JSON.parse(data);
+        
+        const fotosC = localStorage.getItem('criador_fotosCapa');
+        if (fotosC) fotosCapa = JSON.parse(fotosC);
+        
+        const fotoS = localStorage.getItem('criador_fotoSobreCapa');
+        if (fotoS) fotoSobreCapa = JSON.parse(fotoS);
+      } catch(e) {
+        console.warn('Erro ao carregar do localStorage:', e);
+      }
+    }
+
+    // Auto-save every 3s
+    setInterval(() => {
+      salvarStepAtual();
+      salvarNoLocalStorage();
+    }, 3000);
+
+
+    /* ═══════════════════════════════════════════════════
+       PREENCHER FORMULÁRIOS A PARTIR DO editorData
+       ═══════════════════════════════════════════════════ */
+    function preencherFormularios() {
+      // API Key
+      carregarApiKey();
+
+      // Step 1
+      document.getElementById('input-titulo').value = editorData.tituloCabecalho;
+      document.getElementById('input-nome-ele').value = editorData.nomes.ele;
+      document.getElementById('input-nome-ela').value = editorData.nomes.ela;
+      const dataVal = editorData.dataInicio.replace('T12:00:00', '');
+      document.getElementById('input-data-inicio').value = dataVal;
+
+      // Step 2
+      if (editorData.musicas[0]) {
+        document.getElementById('input-music-url').value = editorData.musicas[0].url;
+        document.getElementById('input-music-titulo').value = editorData.musicas[0].titulo;
+        document.getElementById('input-music-artista').value = editorData.musicas[0].artista;
+      }
+
+      // Step 4
+      document.getElementById('input-mensagem').value = editorData.mensagem;
+
+      // Step 6 extras
+      document.getElementById('input-roleta-pergunta').value = editorData.roletaPergunta;
+      document.getElementById('input-estrelas-local').value = editorData.mapaEstrelas.local;
+      document.getElementById('input-estrelas-data').value = editorData.mapaEstrelas.data;
+      document.getElementById('input-estrelas-coords').value = editorData.mapaEstrelas.coordenadas;
+      document.getElementById('input-jogo-dica').value = editorData.jogoPalavra.dica;
+      document.getElementById('input-jogo-palavra').value = editorData.jogoPalavra.palavra;
+      document.getElementById('input-jogo-msg').value = editorData.jogoPalavra.msgFinal;
+      document.getElementById('input-natal-tag').value = editorData.natal.tag;
+      document.getElementById('input-natal-titulo').value = editorData.natal.titulo;
+      document.getElementById('input-natal-msg').value = editorData.natal.mensagem;
+
+      // Contadores de caracteres
+      document.getElementById('titulo-counter').textContent = `${editorData.tituloCabecalho.length}/30`;
+      document.getElementById('mensagem-counter').textContent = `${editorData.mensagem.length}/5000`;
+    }
+
+
+    /* ═══════════════════════════════════════════════════
+       DRAG & DROP na dropzone
+       ═══════════════════════════════════════════════════ */
+    function setupDragDrop() {
+      const dropzone = document.getElementById('dropzone-fotos-capa');
+      
+      ['dragenter', 'dragover'].forEach(evt => {
+        dropzone.addEventListener(evt, (e) => {
+          e.preventDefault();
+          dropzone.style.borderColor = 'var(--roxo)';
+          dropzone.style.background = 'rgba(139, 92, 246, 0.06)';
+        });
+      });
+
+      ['dragleave', 'drop'].forEach(evt => {
+        dropzone.addEventListener(evt, (e) => {
+          e.preventDefault();
+          dropzone.style.borderColor = '';
+          dropzone.style.background = '';
+        });
+      });
+
+      dropzone.addEventListener('drop', (e) => {
+        const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+        files.forEach(file => {
+          if (file.size > 10 * 1024 * 1024) return;
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            fotosCapa.push({ name: file.name, data: ev.target.result });
+            renderFotosCapa();
+            aoEditarCampo();
+          };
+          reader.readAsDataURL(file);
+        });
+      });
+
+      // Sobre dropzone
+      const dropzone2 = document.getElementById('dropzone-foto-sobre');
+      ['dragenter', 'dragover'].forEach(evt => {
+        dropzone2.addEventListener(evt, (e) => {
+          e.preventDefault();
+          dropzone2.style.borderColor = 'var(--roxo)';
+        });
+      });
+      ['dragleave', 'drop'].forEach(evt => {
+        dropzone2.addEventListener(evt, (e) => {
+          e.preventDefault();
+          dropzone2.style.borderColor = '';
+        });
+      });
+      dropzone2.addEventListener('drop', (e) => {
+        const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+        if (files.length === 0) return;
+        const file = files[0];
+        if (file.size > 10 * 1024 * 1024) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          fotoSobreCapa = [{ name: file.name, data: ev.target.result }];
+          renderFotoSobre();
+          aoEditarCampo();
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+
+    /* ═══════════════════════════════════════════════════
+       INICIALIZAÇÃO
+       ═══════════════════════════════════════════════════ */
+    window.addEventListener('DOMContentLoaded', () => {
+      carregarDoLocalStorage();
+      carregarApiKey();
+      carregarDadosGitHub();
+      renderStepsProgress();
+      mostrarStepAtivo();
+      preencherFormularios();
+      renderFotosCapa();
+      renderFotoSobre();
+      renderConquistasEditor();
+      renderRoletaEditor();
+      renderTimelineEditor();
+      renderStoriesEditor();
+      setupDragDrop();
+
+      // Buscar música ao pressionar Enter
+      const searchInput = document.getElementById('input-music-search');
+      if (searchInput) {
+        searchInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            buscarMusica();
+          }
+        });
+      }
+
+      // Enviar config inicial para o iframe quando ele carregar
+      const iframe = document.getElementById('previewIframe');
+      iframe.addEventListener('load', () => {
+        setTimeout(() => {
+          enviarConfigParaPreview();
+        }, 800);
+      });
+    });
+
+
+    /* ═══════════════════════════════════════════════════
+       EXPANDIR CAMPO (MODAL)
+       ═══════════════════════════════════════════════════ */
+    let expandTargetInputId = null;
+
+    function expandirCampo(inputId, titulo) {
+      expandTargetInputId = inputId;
+      document.getElementById('expandModalTitle').textContent = titulo;
+      document.getElementById('expandModalTextarea').value = document.getElementById(inputId).value;
+      document.getElementById('expandModal').classList.add('active');
+      setTimeout(() => document.getElementById('expandModalTextarea').focus(), 100);
+    }
+
+    function fecharExpandModal() {
+      document.getElementById('expandModal').classList.remove('active');
+      expandTargetInputId = null;
+    }
+
+    function salvarExpandModal() {
+      if (expandTargetInputId) {
+        document.getElementById(expandTargetInputId).value = document.getElementById('expandModalTextarea').value;
+        aoEditarCampo();
+      }
+      fecharExpandModal();
+    }
+
+
+    /* ═══════════════════════════════════════════════════
+       GERAR TEXTO AUTOMATICO
+       ═══════════════════════════════════════════════════ */
+    function gerarTexto(inputId, tipo) {
+      const nomeEle = editorData.nomes.ele || 'Eu';
+      const nomeEla = editorData.nomes.ela || 'você';
+
+      const titulosSugestoes = [
+        `Para ${nomeEla}, com amor ❤️`,
+        `Nosso presente especial`,
+        `${nomeEle} & ${nomeEla} ❤️`,
+        `Um amor sem limites`,
+        `Só nosso, pra sempre`,
+        `De ${nomeEle} para ${nomeEla}`
+      ];
+
+      const mensagensSugestoes = [
+        `Tem dias que eu olho pra você e penso: como eu tive tanta sorte? Não é exagero. É só que, com você, tudo faz sentido. Até o caos do mundo parece mais leve quando estou do seu lado.\n\nObrigado por existir e por ser tão você. Eu te amo mais do que qualquer palavra pode dizer.`,
+        `Você apareceu na minha vida como a melhor surpresa que o destino poderia me dar. Cada segundo ao seu lado é um presente que eu faço questão de guardar no coração.\n\nQue a gente nunca perca isso que temos. Eu te amo, ${nomeEla}.`,
+        `Se eu pudesse voltar no tempo, faria tudo de novo só pra te encontrar mais cedo. Você transformou meus dias cinzas em arco-íris. Obrigado por ser minha pessoa favorita no mundo inteiro.\n\nCom todo o meu amor, ${nomeEle}.`,
+        `Eu não sei explicar o que sinto, só sei que quando você sorri, o mundo inteiro para. Você é a razão dos meus melhores dias e o motivo de todos os meus sorrisos.\n\nTe amo infinito, ${nomeEla}. ❤️`
+      ];
+
+      let lista;
+      if (tipo === 'titulo') {
+        lista = titulosSugestoes;
+      } else {
+        lista = mensagensSugestoes;
+      }
+
+      const textoGerado = lista[Math.floor(Math.random() * lista.length)];
+      const input = document.getElementById(inputId);
+      input.value = textoGerado;
+      aoEditarCampo();
+      mostrarToast('✨ Texto gerado com sucesso!');
+    }
+
+    /* ═══════════════════════════════════════════════════
+       SISTEMA DE BUSCA DE MÚSICA
+       Primário: YouTube Data API v3 (rápido, confiável)
+       Fallback: Invidious (sem necessidade de chave)
+       ═══════════════════════════════════════════════════ */
+
+    // Instâncias Invidious conhecidas como fallback
+    const INVIDIOUS_FALLBACK = [
+      'https://inv.nadeko.net',
+      'https://invidious.nerdvpn.de',
+      'https://iv.datura.network',
+      'https://invidious.privacydev.net',
+      'https://invidious.tiekoetter.com'
+    ];
+
+    function salvarApiKey() {
+      const key = document.getElementById('input-youtube-apikey').value.trim();
+      if (key) {
+        localStorage.setItem('yt_api_key', key);
+      } else {
+        localStorage.removeItem('yt_api_key');
+      }
+    }
+
+    function carregarApiKey() {
+      const saved = localStorage.getItem('yt_api_key');
+      if (saved) {
+        const input = document.getElementById('input-youtube-apikey');
+        if (input) input.value = saved;
+      }
+    }
+
+    function getApiKey() {
+      if (YOUTUBE_APIKEY !== 'COLE_SUA_NOVA_YOUTUBE_APIKEY_AQUI') return YOUTUBE_APIKEY;
+      return (document.getElementById('input-youtube-apikey')?.value || '').trim()
+        || localStorage.getItem('yt_api_key') || '';
+    }
+
+    /* Busca via YouTube Data API v3 */
+    async function buscarViaYouTubeAPI(query, apiKey) {
+      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoCategoryId=10&maxResults=5&q=${encodeURIComponent(query)}&key=${apiKey}`;
+      const controller = new AbortController();
+      const tid = setTimeout(() => controller.abort(), 8000);
+      try {
+        const res = await fetch(url, { signal: controller.signal });
+        clearTimeout(tid);
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err?.error?.message || `HTTP ${res.status}`);
+        }
+        const data = await res.json();
+        return (data.items || []).map(item => ({
+          videoId: item.id.videoId,
+          title: item.snippet.title,
+          author: item.snippet.channelTitle,
+          thumb: item.snippet.thumbnails?.medium?.url || item.snippet.thumbnails?.default?.url || ''
+        }));
+      } catch (e) {
+        clearTimeout(tid);
+        throw e;
+      }
+    }
+
+    /* Busca via Invidious (fallback, tenta múltiplas instâncias) */
+    async function buscarViaInvidious(query) {
+      for (const uri of INVIDIOUS_FALLBACK) {
+        try {
+          const controller = new AbortController();
+          const tid = setTimeout(() => controller.abort(), 6000);
+          const res = await fetch(`${uri}/api/v1/search?q=${encodeURIComponent(query)}&type=video`, {
+            signal: controller.signal
+          });
+          clearTimeout(tid);
+          if (!res.ok) continue;
+          const items = await res.json();
+          if (!Array.isArray(items) || items.length === 0) continue;
+          return items.slice(0, 5).map(item => ({
+            videoId: item.videoId,
+            title: item.title,
+            author: item.author,
+            thumb: item.videoThumbnails?.[0]?.url || ''
+          }));
+        } catch (e) {
+          console.warn(`Invidious falhou (${uri}):`, e.message);
+        }
+      }
+      return [];
+    }
+
+    async function buscarMusica() {
+      const queryInput = document.getElementById('input-music-search');
+      const query = queryInput.value.trim();
+      if (!query) {
+        mostrarToast('⚠️ Digite o nome de uma música!');
+        return;
+      }
+
+      const searchLoading = document.getElementById('search-loading');
+      const resultsContainer = document.getElementById('search-results-container');
+      const searchButton = document.getElementById('btn-music-search');
+
+      searchLoading.style.display = 'flex';
+      resultsContainer.style.display = 'none';
+      resultsContainer.innerHTML = '';
+      searchButton.disabled = true;
+
+      let resultados = [];
+      let fonte = '';
+      const apiKey = getApiKey();
+
+      try {
+        if (apiKey) {
+          // Tenta YouTube Data API v3 primeiro
+          try {
+            resultados = await buscarViaYouTubeAPI(query, apiKey);
+            fonte = 'YouTube API';
+          } catch (ytErr) {
+            console.warn('YouTube API falhou, usando fallback Invidious:', ytErr.message);
+            mostrarToast('⚠️ YouTube API com erro, tentando fallback...');
+            resultados = await buscarViaInvidious(query);
+            fonte = 'Invidious';
+          }
+        } else {
+          // Sem chave: vai direto para Invidious
+          resultados = await buscarViaInvidious(query);
+          fonte = 'Invidious';
+        }
+      } catch (e) {
+        console.error('Erro na busca:', e);
+      }
+
+      searchLoading.style.display = 'none';
+      searchButton.disabled = false;
+
+      if (resultados.length > 0) {
+        resultsContainer.style.display = 'flex';
+        resultados.forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'search-result-item';
+          const thumbStyle = item.thumb
+            ? `background-image: url('${item.thumb}')`
+            : 'background: #2a2a32';
+          div.innerHTML = `
+            <div class="search-result-thumb" style="${thumbStyle}"></div>
+            <div class="search-result-info">
+              <div class="search-result-title">${escapeHTML(item.title)}</div>
+              <div class="search-result-artist">${escapeHTML(item.author)}${fonte ? ` <span style="opacity:0.4; font-size:0.65rem;">· ${fonte}</span>` : ''}</div>
+            </div>
+          `;
+          div.onclick = () => selecionarMusicaBuscada(item.videoId, item.title, item.author);
+          resultsContainer.appendChild(div);
+        });
+      } else {
+        mostrarToast('❌ Nenhuma música encontrada. Tente outro nome ou verifique sua API key.');
+      }
+    }
+
+    function escapeHTML(str) {
+      if (!str) return '';
+      return str.replace(/[&<>'"]/g,
+        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+      );
+    }
+
+    function selecionarMusicaBuscada(videoId, titulo, artista) {
+      const url = `https://www.youtube.com/watch?v=${videoId}`;
+      document.getElementById('input-music-url').value = url;
+      document.getElementById('input-music-titulo').value = titulo;
+      document.getElementById('input-music-artista').value = artista;
+      document.getElementById('search-results-container').style.display = 'none';
+      document.getElementById('input-music-search').value = '';
+      aoEditarCampo();
+      mostrarToast('🎵 Música selecionada com sucesso!');
+    }
+    /* ═══════════════════════════════════════════════════
+       GITHUB PAGES — PUBLICAÇÃO AUTOMÁTICA
+       ═══════════════════════════════════════════════════ */
+
+    let _publishedLink = '';
+    let _publishedHtml = '';
+
+    function salvarGhToken() {
+      const v = document.getElementById('input-gh-token').value.trim();
+      if (v) localStorage.setItem('gh_pat', v);
+      else localStorage.removeItem('gh_pat');
+    }
+
+    function salvarGhUsuario() {
+      const v = document.getElementById('input-gh-usuario').value.trim();
+      if (v) localStorage.setItem('gh_usuario', v);
+      else localStorage.removeItem('gh_usuario');
+    }
+
+    function atualizarPreviewLink() {
+      const usuario = (document.getElementById('input-gh-usuario')?.value || localStorage.getItem('gh_usuario') || 'seuusuario').trim();
+      const repo = (document.getElementById('input-gh-repo')?.value || 'nome-do-repo').trim();
+      const el = document.getElementById('preview-link');
+      if (el) el.textContent = `${usuario}.github.io/${repo}`;
+    }
+
+    function addPublishStep(id, texto, status = 'pending') {
+      const container = document.getElementById('publish-steps-list');
+      const icons = { pending: '⏳', ok: '✅', erro: '❌' };
+      let el = document.getElementById(`pstep-${id}`);
+      if (!el) {
+        el = document.createElement('div');
+        el.id = `pstep-${id}`;
+        el.style.cssText = 'display:flex; align-items:center; gap:10px; font-size:0.85rem; color:rgba(255,255,255,0.75); padding:10px 14px; background:var(--bg-input); border-radius:10px; border:1px solid var(--border);';
+        container.appendChild(el);
+      }
+      el.innerHTML = `<span style="font-size:1rem;">${icons[status]}</span> ${texto}`;
+    }
+
+    async function publicarNoGitHub() {
+      salvarStepAtual();
+
+      const token   = (document.getElementById('input-gh-token').value || localStorage.getItem('gh_pat') || '').trim();
+      const usuario = (document.getElementById('input-gh-usuario').value || localStorage.getItem('gh_usuario') || '').trim();
+      const repo    = (document.getElementById('input-gh-repo').value || '').trim();
+
+      if (!token)   { mostrarToast('⚠️ Insira seu GitHub Token!'); return; }
+      if (!usuario) { mostrarToast('⚠️ Insira seu usuário do GitHub!'); return; }
+      if (!repo)    { mostrarToast('⚠️ Insira o nome do repositório!'); return; }
+
+      const btnPublicar = document.getElementById('btn-publicar');
+      btnPublicar.disabled = true;
+      btnPublicar.textContent = '⏳ Publicando...';
+
+      const statusBox = document.getElementById('publish-status');
+      const linkBox   = document.getElementById('publish-link-box');
+      statusBox.style.display = 'block';
+      linkBox.style.display = 'none';
+      document.getElementById('publish-steps-list').innerHTML = '';
+
+      const headers = {
+        'Authorization': `token ${token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/vnd.github+json'
+      };
+
+      try {
+        // 1. Buscar HTML do presente
+        addPublishStep('html', 'Gerando HTML do presente...', 'pending');
+        let htmlFinal = '';
+        try {
+          const res = await fetch('presente-digital.html');
+          if (!res.ok) throw new Error('fetch falhou');
+          const htmlOriginal = await res.text();
+          const configJSON = JSON.stringify(editorData, null, 2);
+          htmlFinal = htmlOriginal.replace(/let CONFIG = \{[\s\S]*?\};/, `let CONFIG = ${configJSON};`);
+        } catch {
+          // fallback inline
+          htmlFinal = gerarHTMLFallback();
+        }
+        _publishedHtml = htmlFinal;
+        addPublishStep('html', 'HTML gerado com sucesso', 'ok');
+
+        // 2. Criar repositório
+        addPublishStep('repo', `Criando repositório "${repo}"...`, 'pending');
+        const repoRes = await fetch('https://api.github.com/user/repos', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            name: repo,
+            description: `Presente digital — ${editorData.nomes.ele} & ${editorData.nomes.ela} ❤️`,
+            private: false,
+            auto_init: false
+          })
+        });
+
+        if (!repoRes.ok) {
+          const err = await repoRes.json();
+          // Se já existe, continua (apenas vai atualizar o arquivo)
+          if (repoRes.status !== 422) throw new Error(err.message || `Erro ${repoRes.status}`);
+          addPublishStep('repo', `Repositório "${repo}" já existe — atualizando...`, 'ok');
+        } else {
+          addPublishStep('repo', `Repositório "${repo}" criado!`, 'ok');
+          // Aguarda um momento para o repo inicializar
+          await new Promise(r => setTimeout(r, 1500));
+        }
+
+        // 3. Verificar se index.html já existe (para pegar sha)
+        addPublishStep('commit', 'Enviando arquivo index.html...', 'pending');
+        let sha = undefined;
+        try {
+          const checkRes = await fetch(`https://api.github.com/repos/${usuario}/${repo}/contents/index.html`, { headers });
+          if (checkRes.ok) {
+            const existing = await checkRes.json();
+            sha = existing.sha;
+          }
+        } catch { /* arquivo não existe ainda, tudo bem */ }
+
+        // 4. Commit do index.html
+        const content = btoa(unescape(encodeURIComponent(htmlFinal)));
+        const commitBody = {
+          message: `presente: ${editorData.nomes.ele} & ${editorData.nomes.ela} ❤️`,
+          content,
+          branch: 'main'
+        };
+        if (sha) commitBody.sha = sha;
+
+        const commitRes = await fetch(`https://api.github.com/repos/${usuario}/${repo}/contents/index.html`, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify(commitBody)
+        });
+
+        if (!commitRes.ok) {
+          const err = await commitRes.json();
+          throw new Error(err.message || `Erro no commit: ${commitRes.status}`);
+        }
+        addPublishStep('commit', 'Arquivo enviado com sucesso!', 'ok');
+
+        // 5. Ativar GitHub Pages na branch main
+        addPublishStep('pages', 'Ativando GitHub Pages...', 'pending');
+        try {
+          // Tenta ativar Pages (pode já estar ativo)
+          const pagesRes = await fetch(`https://api.github.com/repos/${usuario}/${repo}/pages`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({ source: { branch: 'main', path: '/' } })
+          });
+          if (pagesRes.ok || pagesRes.status === 409) {
+            addPublishStep('pages', 'GitHub Pages ativado!', 'ok');
+          } else {
+            // Tenta atualizar se já existia
+            await fetch(`https://api.github.com/repos/${usuario}/${repo}/pages`, {
+              method: 'PUT',
+              headers,
+              body: JSON.stringify({ source: { branch: 'main', path: '/' } })
+            });
+            addPublishStep('pages', 'GitHub Pages atualizado!', 'ok');
+          }
+        } catch {
+          addPublishStep('pages', 'Pages ativado (verifique nas configurações do repo)', 'ok');
+        }
+
+        // 6. Exibir link final
+        const link = `https://${usuario}.github.io/${repo}`;
+        _publishedLink = link;
+        document.getElementById('publish-link-url').textContent = link;
+        linkBox.style.display = 'block';
+        mostrarToast('🚀 Presente publicado com sucesso!');
+
+      } catch (err) {
+        addPublishStep('erro', `Erro: ${err.message}`, 'erro');
+        mostrarToast(`❌ ${err.message}`);
+        btnPublicar.disabled = false;
+        btnPublicar.textContent = '🚀 Tentar Novamente';
+        return;
+      }
+
+      btnPublicar.disabled = false;
+      btnPublicar.innerHTML = '✅ Publicado! Publicar Novamente';
+    }
+
+    function copiarLink() {
+      if (!_publishedLink) return;
+      navigator.clipboard.writeText(_publishedLink).then(() => mostrarToast('📋 Link copiado!'));
+    }
+
+    function abrirLink() {
+      if (_publishedLink) window.open(_publishedLink, '_blank');
+    }
+
+    function baixarTambem() {
+      if (!_publishedHtml) return;
+      const blob = new Blob([_publishedHtml], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `presente-${editorData.nomes.ele}-e-${editorData.nomes.ela}.html`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function exportarSomenteBaixar() {
+      salvarStepAtual();
+      fetch('presente-digital.html')
+        .then(res => res.text())
+        .then(html => {
+          const configJSON = JSON.stringify(editorData, null, 2);
+          const final = html.replace(/let CONFIG = \{[\s\S]*?\};/, `let CONFIG = ${configJSON};`);
+          const blob = new Blob([final], { type: 'text/html' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `presente-${editorData.nomes.ele}-e-${editorData.nomes.ela}.html`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          mostrarToast('💾 Arquivo baixado!');
+        })
+        .catch(() => mostrarToast('❌ Erro: presente-digital.html não encontrado no servidor.'));
+    }
+
+    function gerarHTMLFallback() {
+      // HTML mínimo caso o fetch do presente-digital.html falhe
+      const d = editorData;
+      return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${d.tituloCabecalho}</title></head><body style="background:#0d0305;color:#fff;font-family:sans-serif;text-align:center;padding:60px 20px;"><h1 style="color:#e8576a;">${d.tituloCabecalho}</h1><p style="font-size:1.2rem;margin:20px 0;">${d.nomes.ele} & ${d.nomes.ela} ❤️</p><p style="opacity:0.6;">${d.mensagem || ''}</p></body></html>`;
+    }
+
+    /* Carregar token e usuario salvos ao abrir o step 7 */
+    // ── CREDENCIAIS PRÉ-CONFIGURADAS ──
+    // Substitua pelos seus valores reais após revogar os anteriores
+    const GITHUB_TOKEN   = 'COLE_SEU_NOVO_GITHUB_TOKEN_AQUI';
+    const GITHUB_USUARIO = 'igoor-og';
+    const YOUTUBE_APIKEY = 'COLE_SUA_NOVA_YOUTUBE_APIKEY_AQUI';
+
+    function carregarDadosGitHub() {
+      // Prioridade: constante hardcoded > localStorage
+      const token   = GITHUB_TOKEN !== 'COLE_SEU_NOVO_GITHUB_TOKEN_AQUI'   ? GITHUB_TOKEN   : localStorage.getItem('gh_pat')      || '';
+      const usuario = GITHUB_USUARIO !== 'igoor-og'                          ? GITHUB_USUARIO : localStorage.getItem('gh_usuario')  || 'igoor-og';
+      const ytKey   = YOUTUBE_APIKEY !== 'COLE_SUA_NOVA_YOUTUBE_APIKEY_AQUI' ? YOUTUBE_APIKEY : localStorage.getItem('yt_api_key')  || '';
+
+      const ghTokenEl  = document.getElementById('input-gh-token');
+      const ghUserEl   = document.getElementById('input-gh-usuario');
+      const ytKeyEl    = document.getElementById('input-youtube-apikey');
+
+      if (ghTokenEl  && token)   { ghTokenEl.value   = token;   localStorage.setItem('gh_pat', token); }
+      if (ghUserEl   && usuario) { ghUserEl.value     = usuario; localStorage.setItem('gh_usuario', usuario); }
+      if (ytKeyEl    && ytKey)   { ytKeyEl.value      = ytKey;   localStorage.setItem('yt_api_key', ytKey); }
+
+      atualizarPreviewLink();
+    }
+
+  </script>
+</body>
+</html>
